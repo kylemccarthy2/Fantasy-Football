@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Foobleh League | 2015–2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#1a1a1a;--bg2:#222;--bg3:#2a2a2a;--bg4:#333;
+  --border:#3a3a3a;--border2:#444;
+  --text:#e8e8e8;--text2:#aaa;--text3:#666;
+  --blue:#378ADD;--green:#1D9E75;--red:#E24B4A;--amber:#EF9F27;
+  --gold:#FAC775;--purple:#7F77DD;
+  --radius:8px;--radius-sm:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+
+/* TOP NAV */
+.topnav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:600;color:var(--text);padding:1rem 1.5rem 1rem 0;border-right:1px solid var(--border);margin-right:.5rem;white-space:nowrap}
+.logo span{color:var(--blue)}
+.tnav-btn{font-size:12px;padding:.85rem 1rem;background:none;border:none;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tnav-btn:hover{color:var(--text);background:var(--bg3)}
+.tnav-btn.active{color:var(--text);border-bottom-color:var(--blue);font-weight:500}
+
+/* PAGES */
+.page{display:none;padding:1.5rem;max-width:1200px;margin:0 auto}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem}
+.card h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:.2rem}
+.card-src{font-size:10px;color:var(--text3);margin-bottom:.85rem}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
+.metric{background:var(--bg3);border-radius:var(--radius-sm);padding:.65rem .9rem}
+.metric .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.metric .val{font-size:20px;font-weight:500;color:var(--text);line-height:1.1}
+.metric .sub{font-size:10px;color:var(--text2);margin-top:1px}
+
+/* INNER NAV */
+.subnav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.25rem}
+.snav-btn{font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .12s}
+.snav-btn:hover,.snav-btn.active{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+.snav-btn.active{font-weight:500}
+.subtab{display:none}.subtab.active{display:block}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:10px;font-weight:500;color:var(--text2);text-align:left;padding:5px 7px;border-bottom:1px solid var(--border)}
+.tbl th.r{text-align:right}
+.tbl td{padding:6px 7px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl td.r{text-align:right}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+
+/* GRID */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:700px){.two,.three{grid-template-columns:1fr}}
+
+/* COLORS */
+.up{color:var(--green);font-weight:500}.dn{color:var(--red);font-weight:500}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500}
+.bc{background:#FAC77533;color:var(--gold)}.br{background:#B5D4F433;color:#6ab0f5}
+.bg{background:#C0DD9733;color:#7abf3a}
+.pill{display:inline-block;font-size:10px;padding:1px 7px;border-radius:99px;font-weight:500;margin:1px}
+.pill-g{background:#1D9E7533;color:var(--green)}.pill-r{background:#E24B4A33;color:var(--red)}
+.pill-b{background:#378ADD33;color:var(--blue)}.pill-a{background:#EF9F2733;color:var(--amber)}
+
+/* TRADE SPECIFIC */
+.trade-row{padding:.65rem .85rem;border-bottom:1px solid var(--border);font-size:12px}
+.trade-row:last-child{border-bottom:none}
+.trade-row:hover{background:var(--bg3)}
+.trade-num{font-size:10px;color:var(--text3);min-width:28px}
+.trade-year{font-size:10px;color:var(--text2);min-width:30px}
+.trade-date{font-size:10px;color:var(--text3);min-width:90px}
+.trade-status{font-size:10px;padding:1px 6px;border-radius:99px}
+.ts-c{background:#1D9E7522;color:var(--green)}.ts-v{background:#E24B4A22;color:var(--red)}
+.team-name{font-weight:500;color:var(--blue)}
+.players{color:var(--text2);font-size:11px}
+.arrow{color:var(--text3);margin:0 4px}
+.search-box{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;margin-bottom:.85rem}
+.search-box:focus{outline:none;border-color:var(--blue)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.85rem}
+.filter-sel{padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;cursor:pointer}
+.filter-sel:focus{outline:none;border-color:var(--blue)}
+.bar-row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:11px}
+.bar-bg{flex:1;background:var(--bg3);border-radius:2px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px}
+.page-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:.25rem}
+.page-sub{font-size:12px;color:var(--text2);margin-bottom:1.25rem}
+.h2h-tbl{width:100%;border-collapse:collapse;font-size:10px}
+.h2h-tbl th,.h2h-tbl td{padding:3px 4px;border:1px solid var(--border);text-align:center}
+.h2h-tbl th{background:var(--bg3);font-weight:500;color:var(--text2)}
+.h2h-win{background:#1D9E7520}.h2h-loss{background:#E24B4A20}.h2h-self{background:var(--bg3);color:var(--text3)}
+.sel{width:100%;margin-bottom:.85rem;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px}
+.ibox{background:var(--bg3);border-radius:var(--radius-sm);padding:.65rem .9rem;margin:5px 0;font-size:12px;line-height:1.6;color:var(--text);border-left:3px solid var(--blue)}
+.ibox.g{border-left-color:var(--green)}.ibox.r{border-left-color:var(--red)}.ibox.a{border-left-color:var(--amber)}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="logo">Fantasy <span>Foobleh</span> League</div>
+  <button class="tnav-btn active" onclick="showPage('home')">🏠 Home</button>
+  <button class="tnav-btn" onclick="showPage('analytics')">📊 Season Analytics</button>
+  <button class="tnav-btn" onclick="showPage('scoring')">🎯 Scoring Stats</button>
+  <button class="tnav-btn" onclick="showPage('trades')">🔄 Trade History</button>
+</div>
+
+<!-- BANNER -->
+<div style="background:#185FA5;color:#E6F1FB;font-size:11px;text-align:center;padding:5px 1rem;letter-spacing:.03em">Fantasy Foobleh League · 11 seasons · 12 managers · 2015–2025 · <strong>Last updated: June 07, 2026 at 11:03 PM</strong></div>
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="page-title">Fantasy Foobleh League Hub</div>
+  <div class="page-sub">11 seasons · 12 managers · 215 trades · 2015–2025</div>
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Seasons</div><div class="val">11</div><div class="sub">2015–2025</div></div>
+    <div class="metric"><div class="lbl">All-time champion</div><div class="val">Matthew</div><div class="sub">3× titles</div></div>
+    <div class="metric"><div class="lbl">Most active trader</div><div class="val">Rotisserie</div><div class="sub">54 trades</div></div>
+    <div class="metric"><div class="lbl">Total trades</div><div class="val">215</div><div class="sub">2015–2025</div></div>
+    <div class="metric"><div class="lbl">Players moved</div><div class="val">652</div><div class="sub">all-time</div></div>
+    <div class="metric"><div class="lbl">Most vetoed season</div><div class="val">2017</div><div class="sub">10 vetoes</div></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>Champion roll of honor</h3>
+      <div class="card-src">2015–2025</div>
+      <table class="tbl">
+        <thead><tr><th>Season</th><th>Champion</th><th>Runner-up</th><th>3rd</th></tr></thead>
+        <tbody>
+          <tr><td>2025</td><td><strong>Jake</strong> <span class="badge bc">🏆</span></td><td>Dalton</td><td>Carson</td></tr>
+          <tr><td>2024</td><td><strong>Matthew</strong> <span class="badge bc">🏆</span></td><td>Dalton</td><td>Kyle</td></tr>
+          <tr><td>2023</td><td><strong>Sam</strong> <span class="badge bc">🏆</span></td><td>Dalton</td><td>Brendan</td></tr>
+          <tr><td>2022</td><td><strong>Cobi</strong> <span class="badge bc">🏆</span></td><td>Blaise</td><td>Kyle</td></tr>
+          <tr><td>2021</td><td><strong>Dalton</strong> <span class="badge bc">🏆</span></td><td>Kyle</td><td>Blaise</td></tr>
+          <tr><td>2020</td><td><strong>Carson</strong> <span class="badge bc">🏆</span></td><td>Matthew</td><td>Jake</td></tr>
+          <tr><td>2019</td><td><strong>Dalton</strong> <span class="badge bc">🏆</span></td><td>Sam</td><td>Brendan</td></tr>
+          <tr><td>2018</td><td><strong>Blaise</strong> <span class="badge bc">🏆</span></td><td>Jake</td><td>Cobi</td></tr>
+          <tr><td>2017</td><td><strong>Matthew</strong> <span class="badge bc">🏆</span></td><td>Kyle</td><td>Wes</td></tr>
+          <tr><td>2016</td><td><strong>Matthew</strong> <span class="badge bc">🏆</span></td><td>Blaise</td><td>Ron</td></tr>
+          <tr><td>2015</td><td><strong>Kyle</strong> <span class="badge bc">🏆</span></td><td>Blaise</td><td>Cobi</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Quick stats — all managers</h3>
+      <div class="card-src">2015–2025 · season summary data</div>
+      <table class="tbl">
+        <thead><tr><th>Manager</th><th class="r">Win%</th><th class="r">Avg PPG</th><th class="r">Titles</th><th class="r">Finals</th></tr></thead>
+        <tbody>
+          <tr><td>Dalton</td><td class="r up">64.6%</td><td class="r">130.5</td><td class="r"><span class="badge bc">2</span></td><td class="r">5</td></tr>
+          <tr><td>Matthew</td><td class="r">54.8%</td><td class="r">131.0</td><td class="r"><span class="badge bc">3</span></td><td class="r">4</td></tr>
+          <tr><td>Jake</td><td class="r">54.1%</td><td class="r">131.9</td><td class="r"><span class="badge bc">1</span></td><td class="r">2</td></tr>
+          <tr><td>Kyle</td><td class="r">52.0%</td><td class="r">136.1</td><td class="r">0</td><td class="r">2</td></tr>
+          <tr><td>Blaise</td><td class="r">51.9%</td><td class="r">133.5</td><td class="r"><span class="badge bc">1</span></td><td class="r">2</td></tr>
+          <tr><td>Cobi</td><td class="r">50.0%</td><td class="r">133.4</td><td class="r"><span class="badge bc">1</span></td><td class="r">1</td></tr>
+          <tr><td>Sam</td><td class="r">53.1%</td><td class="r">128.7</td><td class="r"><span class="badge bc">1</span></td><td class="r">2</td></tr>
+          <tr><td>Brendan</td><td class="r">49.2%</td><td class="r">131.4</td><td class="r">0</td><td class="r">0</td></tr>
+          <tr><td>Carson</td><td class="r">44.8%</td><td class="r">126.4</td><td class="r"><span class="badge bc">1</span></td><td class="r">1</td></tr>
+          <tr><td>Wes</td><td class="r">43.0%</td><td class="r">128.3</td><td class="r">0</td><td class="r">0</td></tr>
+          <tr><td>Ron</td><td class="r dn">42.6%</td><td class="r dn">126.0</td><td class="r">0</td><td class="r">0</td></tr>
+          <tr><td>Nolan</td><td class="r">39.3%</td><td class="r">132.4</td><td class="r">0</td><td class="r">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>Trades by season</h3>
+      <div class="card-src">2015–2025 · all trade data</div>
+      <div style="position:relative;height:200px"><canvas id="cTradesByYear"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>League avg scoring trend</h3>
+      <div class="card-src">2015–2025 · season summary data</div>
+      <div style="position:relative;height:200px"><canvas id="cLeagueTrend"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS PAGE -->
+<div id="page-analytics" class="page">
+  <div class="page-title">Season Analytics</div>
+  <div class="page-sub">Career stats, luck analysis, expected titles, H2H records · 2015–2025</div>
+  <div class="subnav" id="analyticsNav">
+    <button class="snav-btn active" onclick="showSub('analytics','standings')">All-time standings</button>
+    <button class="snav-btn" onclick="showSub('analytics','luck')">Luck &amp; Pythagorean</button>
+    <button class="snav-btn" onclick="showSub('analytics','expected')">Expected titles</button>
+    <button class="snav-btn" onclick="showSub('analytics','h2h')">Head-to-head</button>
+    <button class="snav-btn" onclick="showSub('analytics','profile')">Team profiles</button>
+  </div>
+
+  <div id="analytics-standings" class="subtab active">
+    <div class="card">
+      <h3>All-time standings — regular season</h3>
+      <div class="card-src">2015–2025 · season summary data</div>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Manager</th><th class="r">Seasons</th><th class="r">W</th><th class="r">L</th><th class="r">Win%</th><th class="r">Avg PPG</th><th class="r">Avg PPGA</th><th class="r">Titles</th><th class="r">Finals</th><th class="r">Top 3</th><th class="r">Pyth Δ</th><th class="r">Luck Δ</th></tr></thead>
+        <tbody id="standingsTbl"></tbody>
+      </table>
+    </div>
+    <div class="two">
+      <div class="card"><h3>Title count</h3><div class="card-src">2015–2025</div><div style="position:relative;height:200px"><canvas id="cTitles"></canvas></div></div>
+      <div class="card"><h3>Win% comparison</h3><div class="card-src">2015–2025 · career RS win rate</div><div style="position:relative;height:200px"><canvas id="cWinPct"></canvas></div></div>
+    </div>
+  </div>
+
+  <div id="analytics-luck" class="subtab">
+    <div class="ibox">
+      <strong>Schedule luck</strong> (2019–2025 matchup data): actual wins vs round-robin expected wins — if you played every team each week, how many would you win on average?<br>
+      <strong>Pythagorean delta</strong> (2015–2025 season data): actual wins vs wins predicted by your scoring ratio (PF^2.37 / (PF^2.37 + PA^2.37)). Positive = lucky / outperformed.
+    </div>
+    <div class="two" style="margin-top:1rem">
+      <div class="card">
+        <h3>Pythagorean win delta — career</h3>
+        <div class="card-src">2015–2025 · all seasons</div>
+        <table class="tbl" id="pythTbl"></table>
+      </div>
+      <div class="card">
+        <h3>Schedule luck delta — career</h3>
+        <div class="card-src">2019–2025 · weekly matchup data only</div>
+        <table class="tbl" id="luckTbl"></table>
+      </div>
+    </div>
+    <div class="two">
+      <div class="card"><h3>Luckiest single seasons</h3><div class="card-src">2019–2025 matchup data</div><table class="tbl" id="luckyTbl"></table></div>
+      <div class="card"><h3>Unluckiest single seasons</h3><div class="card-src">2019–2025 matchup data</div><table class="tbl" id="unluckyTbl"></table></div>
+    </div>
+  </div>
+
+  <div id="analytics-expected" class="subtab">
+    <div class="ibox g">Expected titles = each season, each team gets a championship probability proportional to (RS PPG percentile)², normalized so all teams sum to 1.0 per season. 11 seasons = 11 total expected titles. Delta = actual minus expected.</div>
+    <div class="card" style="margin-top:1rem">
+      <h3>Expected vs actual championships</h3>
+      <div class="card-src">2015–2025 · season summary data · 11 total titles</div>
+      <div style="position:relative;height:260px"><canvas id="cExpTitles"></canvas></div>
+    </div>
+    <div id="expInsights" style="margin-top:1rem"></div>
+  </div>
+
+  <div id="analytics-h2h" class="subtab">
+    <div class="ibox">Regular season H2H records · <strong>2019–2025 weekly matchup data only.</strong></div>
+    <div class="card" style="margin-top:1rem;overflow-x:auto">
+      <h3>Head-to-head matrix</h3>
+      <div class="card-src">2019–2025 · RS only · green = winning record</div>
+      <table class="h2h-tbl" id="h2hTbl"></table>
+    </div>
+  </div>
+
+  <div id="analytics-profile" class="subtab">
+    <select class="sel" id="profileSel" onchange="renderProfile()"></select>
+    <div id="profileArea"></div>
+  </div>
+</div>
+
+<!-- SCORING PAGE -->
+<div id="page-scoring" class="page">
+  <div class="page-title">Scoring Deep Dive</div>
+  <div class="page-sub">Thresholds, boom/bust, streaks, splits, weekly trends · 2019–2025 RS only</div>
+  <div class="subnav">
+    <button class="snav-btn active" onclick="showSub('scoring','thresholds')">Thresholds</button>
+    <button class="snav-btn" onclick="showSub('scoring','boombust')">Boom / Bust</button>
+    <button class="snav-btn" onclick="showSub('scoring','streaks')">Streaks &amp; Spans</button>
+    <button class="snav-btn" onclick="showSub('scoring','splits')">Season Splits</button>
+    <button class="snav-btn" onclick="showSub('scoring','margins')">Margins</button>
+    <button class="snav-btn" onclick="showSub('scoring','leaguewk')">League Weekly</button>
+  </div>
+
+  <div id="scoring-thresholds" class="subtab active">
+    <select class="sel" id="thrSel" onchange="renderThresholds()"></select>
+    <div id="thrArea"></div>
+  </div>
+  <div id="scoring-boombust" class="subtab">
+    <div class="card"><h3>Boom rate (150+) vs bust rate (sub-100)</h3><div class="card-src">2019–2025 RS · bars above axis = boom%, below = bust%</div><div style="position:relative;height:260px"><canvas id="cBoomBust"></canvas></div></div>
+    <div class="card"><h3>Full boom/bust profile</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="bbTbl"></table></div>
+  </div>
+  <div id="scoring-streaks" class="subtab">
+    <div class="card"><h3>Win &amp; loss streaks</h3><div class="card-src">2019–2025 RS · bars above = win streak, below = loss streak</div><div style="position:relative;height:240px"><canvas id="cStreaks"></canvas></div></div>
+    <div class="two">
+      <div class="card"><h3>Longest 130+ streaks</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="s130Tbl"></table></div>
+      <div class="card"><h3>Best 5-game scoring avg</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="best5Tbl"></table></div>
+    </div>
+    <div class="two">
+      <div class="card"><h3>Best 10-game win span</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="best10Tbl"></table></div>
+      <div class="card"><h3>Worst 10-game win span</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="worst10Tbl"></table></div>
+    </div>
+  </div>
+  <div id="scoring-splits" class="subtab">
+    <div class="card"><h3>2H vs 1H scoring delta</h3><div class="card-src">2019–2025 RS · positive = scores more in 2nd half of season</div><div style="position:relative;height:220px"><canvas id="cHalves"></canvas></div></div>
+    <div class="card"><h3>Early / mid / late season splits</h3><div class="card-src">2019–2025 RS · early=wk1-5, mid=wk6-9, late=wk10-14</div><table class="tbl" id="splitTbl"></table></div>
+  </div>
+  <div id="scoring-margins" class="subtab">
+    <div class="card"><h3>Top 15 individual game scores</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="top15Tbl"></table></div>
+    <div class="card"><h3>Bottom 15 individual game scores</h3><div class="card-src">2019–2025 RS</div><table class="tbl" id="bot15Tbl"></table></div>
+  </div>
+  <div id="scoring-leaguewk" class="subtab">
+    <div class="card"><h3>League avg by year</h3><div class="card-src">2019–2025 RS</div><div style="position:relative;height:200px"><canvas id="cLgYear"></canvas></div></div>
+    <div class="two">
+      <div class="card"><h3>Top 15 scoring weeks</h3><div class="card-src">2019–2025 RS · by league avg that week</div><table class="tbl" id="topWkTbl"></table></div>
+      <div class="card"><h3>Bottom 15 scoring weeks</h3><div class="card-src">2019–2025 RS · low weeks = whole league scores low</div><table class="tbl" id="botWkTbl"></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRADES PAGE -->
+<div id="page-trades" class="page">
+  <div class="page-title">Trade History</div>
+  <div class="page-sub">215 trades · 652 players moved · 2015–2025</div>
+  <div class="subnav">
+    <button class="snav-btn active" onclick="showSub('trades','log')">Trade log</button>
+    <button class="snav-btn" onclick="showSub('trades','teams')">By team</button>
+    <button class="snav-btn" onclick="showSub('trades','players')">Most traded players</button>
+    <button class="snav-btn" onclick="showSub('trades','byyear')">By season</button>
+    <button class="snav-btn" onclick="showSub('trades','positions')">By position</button>
+  </div>
+
+  <div id="trades-log" class="subtab active">
+    <div class="filter-row">
+      <input class="search-box" id="tradeSearch" placeholder="Search player, team, or year..." oninput="filterTrades()" style="flex:1;margin-bottom:0">
+      <select class="filter-sel" id="yearFilter" onchange="filterTrades()">
+        <option value="">All years</option>
+        <option>2025</option><option>2024</option><option>2023</option><option>2022</option>
+        <option>2021</option><option>2020</option><option>2019</option><option>2018</option>
+        <option>2017</option><option>2016</option><option>2015</option>
+      </select>
+      <select class="filter-sel" id="statusFilter" onchange="filterTrades()">
+        <option value="">All statuses</option>
+        <option value="Completed">Completed</option>
+        <option value="Vetoed">Vetoed</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="tradeCount" style="font-size:11px;color:var(--text2);padding:.65rem 1rem;border-bottom:1px solid var(--border)"></div>
+      <div id="tradeList" style="max-height:600px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <div id="trades-teams" class="subtab">
+    <div class="two">
+      <div class="card">
+        <h3>Most active trading teams</h3>
+        <div class="card-src">All-time · sorted by total trades</div>
+        <div style="position:relative;height:300px"><canvas id="cTradeTeams"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Team trade activity — all 73 teams</h3>
+        <div class="card-src">All-time · all team name variants</div>
+        <table class="tbl" id="teamTbl"></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="trades-players" class="subtab">
+    <div class="card">
+      <h3>Most traded players all-time</h3>
+      <div class="card-src">2015–2025 · count = total times appearing in a trade</div>
+      <div style="position:relative;height:280px"><canvas id="cTopPlayers"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Full most-traded leaderboard</h3>
+      <div class="card-src">All players appearing 3+ times</div>
+      <table class="tbl" id="topPlayersTbl"></table>
+    </div>
+  </div>
+
+  <div id="trades-byyear" class="subtab">
+    <div class="card">
+      <h3>Trade volume by season</h3>
+      <div class="card-src">2015–2025 · completed + vetoed</div>
+      <div style="position:relative;height:240px"><canvas id="cByYear"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Season-by-season breakdown</h3>
+      <div class="card-src">2015–2025</div>
+      <table class="tbl" id="byYearTbl"></table>
+    </div>
+  </div>
+
+  <div id="trades-positions" class="subtab">
+    <div class="two">
+      <div class="card">
+        <h3>Trades by position</h3>
+        <div class="card-src">2015–2025 · total times traded by position</div>
+        <div style="position:relative;height:220px"><canvas id="cByPos"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Most active NFL teams in trades</h3>
+        <div class="card-src">2015–2025 · total players traded from each team</div>
+        <div style="position:relative;height:220px"><canvas id="cByNFL"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const COLORS={Blaise:'#378ADD',Brendan:'#D85A30',Carson:'#1D9E75',Cobi:'#EF9F27',Dalton:'#D4537E',Jake:'#534AB7',Kyle:'#639922',Matthew:'#888780',Nolan:'#5DCAA5',Ron:'#E24B4A',Sam:'#7F77DD',Wes:'#BA7517'};
+const MANAGERS=['Blaise','Brendan','Carson','Cobi','Dalton','Jake','Kyle','Matthew','Nolan','Ron','Sam','Wes'];
+const CAREER={
+  Blaise:{seasons:10,w:70,l:65,ppg:133.5,ppga:129.7,titles:1,finals:2,top3:5,pyth:0.6,luck:-2.8,expT:1.18},
+  Brendan:{seasons:9,w:60,l:62,ppg:131.4,ppga:131.9,titles:0,finals:0,top3:3,pyth:-0.5,luck:-4.5,expT:0.90},
+  Carson:{seasons:7,w:43,l:53,ppg:126.4,ppga:130.3,titles:1,finals:1,top3:2,pyth:-3.1,luck:-5.5,expT:0.43},
+  Cobi:{seasons:11,w:74,l:74,ppg:133.4,ppga:132.5,titles:1,finals:1,top3:3,pyth:-0.3,luck:-0.9,expT:1.34},
+  Dalton:{seasons:7,w:62,l:34,ppg:130.5,ppga:121.7,titles:2,finals:5,top3:6,pyth:10.1,luck:11.8,expT:0.76},
+  Jake:{seasons:10,w:73,l:62,ppg:131.9,ppga:129.2,titles:1,finals:2,top3:3,pyth:4.1,luck:5.8,expT:1.03},
+  Kyle:{seasons:11,w:77,l:71,ppg:136.1,ppga:133.2,titles:0,finals:2,top3:5,pyth:1.6,luck:-5.2,expT:2.04},
+  Matthew:{seasons:10,w:74,l:61,ppg:131.0,ppga:128.9,titles:3,finals:4,top3:6,pyth:5.1,luck:8.4,expT:1.03},
+  Nolan:{seasons:2,w:11,l:17,ppg:132.4,ppga:139.8,titles:0,finals:0,top3:0,pyth:-2.1,luck:-2.9,expT:0.22},
+  Ron:{seasons:11,w:63,l:85,ppg:126.0,ppga:133.9,titles:0,finals:0,top3:1,pyth:-5.6,luck:-2.4,expT:0.65},
+  Sam:{seasons:7,w:51,l:45,ppg:128.7,ppga:126.0,titles:1,finals:2,top3:3,pyth:1.7,luck:3.4,expT:0.70},
+  Wes:{seasons:10,w:58,l:77,ppg:128.3,ppga:136.0,titles:0,finals:0,top3:2,pyth:-4.6,luck:-4.5,expT:0.73}
+};
+const LUCK_ACT={Blaise:49,Brendan:50,Carson:46,Cobi:53,Dalton:73,Jake:57,Kyle:53,Matthew:55,Nolan:13,Ron:43,Sam:57,Wes:44};
+const LUCK_EXP={Blaise:51.8,Brendan:54.5,Carson:51.5,Cobi:53.9,Dalton:61.2,Jake:51.2,Kyle:58.2,Matthew:46.6,Nolan:15.9,Ron:45.4,Sam:53.6,Wes:48.5};
+const LUCKY_SEASONS=[{n:'Matthew',y:2021,act:8,exp:5.5,delta:2.5,f:6},{n:'Sam',y:2023,act:12,exp:9.6,delta:2.4,f:1},{n:'Dalton',y:2022,act:10,exp:7.8,delta:2.2,f:5},{n:'Dalton',y:2025,act:14,exp:11.8,delta:2.2,f:2},{n:'Dalton',y:2021,act:14,exp:12.0,delta:2.0,f:1},{n:'Matthew',y:2022,act:11,exp:9.2,delta:1.8,f:4},{n:'Jake',y:2025,act:12,exp:10.2,delta:1.8,f:1},{n:'Blaise',y:2025,act:8,exp:6.2,delta:1.8,f:6},{n:'Dalton',y:2023,act:10,exp:8.2,delta:1.8,f:2},{n:'Dalton',y:2024,act:11,exp:9.2,delta:1.8,f:2}];
+const UNLUCKY_SEASONS=[{n:'Blaise',y:2023,act:2,exp:6.1,delta:-4.1,f:12},{n:'Brendan',y:2025,act:3,exp:6.1,delta:-3.1,f:11},{n:'Cobi',y:2021,act:5,exp:7.6,delta:-2.6,f:9},{n:'Wes',y:2022,act:3,exp:5.5,delta:-2.5,f:12},{n:'Sam',y:2024,act:3,exp:5.1,delta:-2.1,f:11},{n:'Kyle',y:2025,act:4,exp:5.8,delta:-1.8,f:9},{n:'Kyle',y:2022,act:10,exp:11.7,delta:-1.7,f:3},{n:'Carson',y:2021,act:6,exp:7.7,delta:-1.7,f:8},{n:'Nolan',y:2025,act:8,exp:9.6,delta:-1.6,f:5},{n:'Blaise',y:2019,act:3,exp:4.4,delta:-1.4,f:11}];
+const H2H={Blaise:{Brendan:[8,3],Carson:[6,2],Cobi:[4,6],Dalton:[4,5],Jake:[4,6],Kyle:[9,4],Matthew:[4,4],Nolan:[2,2],Ron:[2,5],Sam:[3,9],Wes:[2,6]},Brendan:{Blaise:[3,8],Carson:[8,3],Cobi:[4,3],Dalton:[3,6],Jake:[6,4],Kyle:[5,6],Matthew:[3,4],Nolan:[1,1],Ron:[7,5],Sam:[2,4],Wes:[6,5]},Carson:{Blaise:[2,6],Brendan:[2,8],Cobi:[3,7],Dalton:[5,7],Jake:[5,4],Kyle:[1,6],Matthew:[5,5],Nolan:[1,1],Ron:[5,4],Sam:[4,6],Wes:[8,3]},Cobi:{Blaise:[6,3],Brendan:[3,4],Carson:[7,3],Dalton:[5,5],Jake:[2,9],Kyle:[6,3],Matthew:[4,5],Nolan:[1,1],Ron:[6,4],Sam:[4,6],Wes:[4,7]},Dalton:{Blaise:[5,4],Brendan:[6,3],Carson:[7,5],Cobi:[5,5],Jake:[8,3],Kyle:[6,2],Matthew:[6,3],Nolan:[4,1],Ron:[9,2],Sam:[4,5],Wes:[6,3]},Jake:{Blaise:[6,4],Brendan:[4,6],Carson:[4,5],Cobi:[9,2],Dalton:[3,8],Kyle:[3,7],Matthew:[4,4],Nolan:[2,1],Ron:[8,1],Sam:[4,4],Wes:[6,4]},Kyle:{Blaise:[4,9],Brendan:[6,5],Carson:[6,1],Cobi:[3,6],Dalton:[2,6],Jake:[7,3],Matthew:[2,6],Nolan:[2,0],Ron:[6,4],Sam:[3,6],Wes:[4,4]},Matthew:{Blaise:[4,4],Brendan:[4,3],Carson:[5,5],Cobi:[5,4],Dalton:[3,6],Jake:[4,4],Kyle:[6,2],Nolan:[2,2],Ron:[5,5],Sam:[9,3],Wes:[5,2]},Nolan:{Blaise:[2,2],Brendan:[1,1],Carson:[1,1],Cobi:[1,1],Dalton:[1,4],Jake:[1,2],Kyle:[0,2],Matthew:[2,2],Ron:[0,3],Sam:[2,0],Wes:[2,0]},Ron:{Blaise:[5,2],Brendan:[4,7],Carson:[4,4],Cobi:[4,6],Dalton:[2,9],Jake:[1,8],Kyle:[4,6],Matthew:[5,5],Nolan:[3,0],Sam:[4,6],Wes:[5,4]},Sam:{Blaise:[9,3],Brendan:[5,2],Carson:[6,4],Cobi:[6,4],Dalton:[5,4],Jake:[4,4],Kyle:[6,3],Matthew:[3,9],Nolan:[0,2],Ron:[6,4],Wes:[5,3]},Wes:{Blaise:[6,2],Brendan:[5,6],Carson:[3,8],Cobi:[7,4],Dalton:[3,6],Jake:[4,6],Kyle:[4,4],Matthew:[2,5],Nolan:[0,2],Ron:[4,5],Sam:[3,5]}};
+const SEASON=[
+  {y:2016,n:'Blaise',f:3,w:10,l:3,ppg:167.73,ppga:137.90},{y:2018,n:'Cobi',f:3,w:8,l:5,ppg:164.95,ppga:148.63},{y:2024,n:'Wes',f:6,w:11,l:3,ppg:159.49,ppga:137.42},{y:2023,n:'Brendan',f:3,w:12,l:2,ppg:156.36,ppga:124.96},{y:2015,n:'Kyle',f:2,w:10,l:3,ppg:156.07,ppga:125.02},{y:2018,n:'Jake',f:2,w:8,l:5,ppg:152.20,ppga:148.40},{y:2016,n:'Kyle',f:7,w:6,l:7,ppg:151.79,ppga:140.16},{y:2018,n:'Blaise',f:1,w:10,l:3,ppg:149.92,ppga:138.75},{y:2015,n:'Cobi',f:7,w:7,l:6,ppg:149.12,ppga:133.81},{y:2016,n:'Matthew',f:1,w:9,l:4,ppg:149.02,ppga:131.92},{y:2018,n:'Kyle',f:5,w:8,l:5,ppg:146.13,ppga:138.99},{y:2022,n:'Kyle',f:3,w:8,l:6,ppg:145.89,ppga:135.72},{y:2016,n:'Jake',f:6,w:6,l:7,ppg:145.57,ppga:137.80},{y:2025,n:'Dalton',f:2,w:12,l:2,ppg:143.49,ppga:121.47},{y:2023,n:'Cobi',f:7,w:10,l:4,ppg:142.25,ppga:131.15},{y:2017,n:'Matthew',f:1,w:7,l:6,ppg:141.48,ppga:127.84},{y:2016,n:'Ron',f:4,w:9,l:4,ppg:140.25,ppga:141.01},{y:2019,n:'Brendan',f:3,w:8,l:5,ppg:139.96,ppga:122.79},{y:2018,n:'Matthew',f:6,w:6,l:7,ppg:139.45,ppga:155.51},{y:2018,n:'Brendan',f:8,w:5,l:8,ppg:138.60,ppga:141.19},{y:2020,n:'Jake',f:3,w:10,l:3,ppg:138.34,ppga:110.38},{y:2025,n:'Nolan',f:5,w:6,l:8,ppg:137.46,ppga:143.63},{y:2022,n:'Cobi',f:1,w:8,l:6,ppg:137.44,ppga:119.66},{y:2024,n:'Ron',f:4,w:8,l:6,ppg:137.40,ppga:132.44},{y:2021,n:'Dalton',f:1,w:11,l:3,ppg:137.08,ppga:112.22},{y:2025,n:'Jake',f:1,w:9,l:5,ppg:136.99,ppga:130.76},{y:2020,n:'Wes',f:6,w:7,l:6,ppg:136.60,ppga:133.99},{y:2024,n:'Kyle',f:3,w:7,l:7,ppg:136.56,ppga:133.10},{y:2023,n:'Sam',f:1,w:9,l:5,ppg:136.54,ppga:124.88},{y:2019,n:'Kyle',f:5,w:9,l:4,ppg:136.49,ppga:124.93},{y:2023,n:'Matthew',f:5,w:7,l:7,ppg:136.28,ppga:132.91},{y:2020,n:'Carson',f:1,w:7,l:6,ppg:136.04,ppga:131.37},{y:2015,n:'Blaise',f:4,w:8,l:5,ppg:136.04,ppga:125.29},{y:2024,n:'Dalton',f:2,w:9,l:5,ppg:135.79,ppga:124.69},{y:2022,n:'Blaise',f:2,w:9,l:5,ppg:135.40,ppga:127.12},{y:2017,n:'Kyle',f:3,w:6,l:7,ppg:135.02,ppga:141.63},{y:2024,n:'Brendan',f:7,w:7,l:7,ppg:134.59,ppga:132.55},{y:2025,n:'Sam',f:7,w:9,l:5,ppg:134.51,ppga:128.23},{y:2017,n:'Wes',f:5,w:8,l:5,ppg:134.32,ppga:129.14},{y:2025,n:'Carson',f:3,w:7,l:7,ppg:134.31,ppga:133.51},{y:2023,n:'Ron',f:6,w:6,l:8,ppg:133.40,ppga:135.74},{y:2022,n:'Brendan',f:8,w:7,l:7,ppg:133.35,ppga:132.04},{y:2018,n:'Wes',f:9,w:4,l:9,ppg:132.98,ppga:155.18},{y:2024,n:'Blaise',f:5,w:7,l:7,ppg:132.75,ppga:129.59},{y:2018,n:'Ron',f:10,w:4,l:9,ppg:132.54,ppga:153.17},{y:2021,n:'Sam',f:5,w:8,l:6,ppg:132.46,ppga:112.94},{y:2022,n:'Matthew',f:4,w:10,l:4,ppg:132.45,ppga:120.08},{y:2024,n:'Matthew',f:1,w:7,l:7,ppg:132.31,ppga:131.57},{y:2022,n:'Carson',f:7,w:7,l:7,ppg:132.26,ppga:134.53},{y:2015,n:'Ron',f:9,w:5,l:8,ppg:132.14,ppga:138.86},{y:2021,n:'Blaise',f:4,w:9,l:5,ppg:131.93,ppga:119.48},{y:2019,n:'Jake',f:7,w:9,l:4,ppg:131.86,ppga:112.68},{y:2016,n:'Cobi',f:5,w:6,l:7,ppg:131.77,ppga:139.54},{y:2023,n:'Wes',f:4,w:7,l:7,ppg:131.71,ppga:129.73},{y:2022,n:'Dalton',f:5,w:8,l:6,ppg:130.99,ppga:121.74},{y:2021,n:'Ron',f:7,w:9,l:5,ppg:130.87,ppga:118.96},{y:2025,n:'Cobi',f:4,w:7,l:7,ppg:130.32,ppga:132.31},{y:2016,n:'Wes',f:10,w:4,l:9,ppg:130.17,ppga:143.24},{y:2024,n:'Carson',f:9,w:6,l:8,ppg:129.71,ppga:136.27},{y:2020,n:'Kyle',f:8,w:7,l:6,ppg:129.66,ppga:131.43},{y:2025,n:'Ron',f:10,w:6,l:8,ppg:128.02,ppga:130.65},{y:2020,n:'Matthew',f:2,w:8,l:5,ppg:127.87,ppga:115.29},{y:2017,n:'Ron',f:9,w:6,l:7,ppg:127.79,ppga:131.86},{y:2023,n:'Jake',f:8,w:8,l:6,ppg:127.40,ppga:132.67},{y:2024,n:'Nolan',f:10,w:5,l:9,ppg:127.33,ppga:136.03},{y:2024,n:'Cobi',f:12,w:6,l:8,ppg:127.26,ppga:131.63},{y:2025,n:'Brendan',f:11,w:3,l:11,ppg:127.05,ppga:137.37},{y:2023,n:'Carson',f:10,w:5,l:9,ppg:126.70,ppga:127.71},{y:2023,n:'Dalton',f:2,w:8,l:6,ppg:126.66,ppga:138.47},{y:2021,n:'Cobi',f:9,w:5,l:9,ppg:126.55,ppga:130.32},{y:2022,n:'Jake',f:10,w:6,l:8,ppg:126.00,ppga:127.84},{y:2024,n:'Jake',f:8,w:8,l:6,ppg:125.83,ppga:135.14},{y:2019,n:'Sam',f:2,w:7,l:6,ppg:125.70,ppga:117.98},{y:2017,n:'Brendan',f:6,w:8,l:5,ppg:125.68,ppga:131.00},{y:2022,n:'Sam',f:9,w:7,l:7,ppg:125.40,ppga:137.49},{y:2021,n:'Kyle',f:2,w:7,l:7,ppg:124.92,ppga:129.83},{y:2023,n:'Blaise',f:12,w:2,l:12,ppg:124.83,ppga:140.64},{y:2025,n:'Matthew',f:8,w:9,l:5,ppg:124.24,ppga:113.55},{y:2017,n:'Jake',f:11,w:5,l:8,ppg:124.13,ppga:131.69},{y:2025,n:'Blaise',f:6,w:7,l:7,ppg:124.12,ppga:127.03},{y:2017,n:'Cobi',f:12,w:5,l:8,ppg:123.34,ppga:133.61},{y:2020,n:'Sam',f:4,w:8,l:5,ppg:123.30,ppga:119.15},{y:2024,n:'Sam',f:11,w:3,l:11,ppg:122.96,ppga:141.54},{y:2019,n:'Cobi',f:4,w:8,l:5,ppg:122.30,ppga:128.56},{y:2019,n:'Dalton',f:1,w:7,l:6,ppg:121.74,ppga:115.30},{y:2022,n:'Wes',f:12,w:3,l:11,ppg:121.08,ppga:147.00},{y:2020,n:'Blaise',f:9,w:5,l:8,ppg:120.94,ppga:124.32},{y:2021,n:'Carson',f:8,w:6,l:8,ppg:120.21,ppga:128.12},{y:2025,n:'Kyle',f:9,w:4,l:10,ppg:119.41,ppga:128.61},{y:2020,n:'Dalton',f:5,w:7,l:6,ppg:117.64,ppga:118.35},{y:2021,n:'Brendan',f:10,w:5,l:9,ppg:117.32,ppga:135.96},{y:2025,n:'Wes',f:12,w:5,l:9,ppg:116.99,ppga:129.81},{y:2020,n:'Ron',f:11,w:4,l:9,ppg:114.74,ppga:130.68},{y:2023,n:'Kyle',f:11,w:5,l:9,ppg:114.68,ppga:135.77},{y:2015,n:'Matthew',f:11,w:4,l:9,ppg:114.37,ppga:141.38},{y:2020,n:'Cobi',f:12,w:4,l:9,ppg:112.23,ppga:128.18},{y:2021,n:'Matthew',f:6,w:7,l:7,ppg:112.13,ppga:118.98},{y:2019,n:'Wes',f:10,w:4,l:9,ppg:111.86,ppga:129.84},{y:2019,n:'Blaise',f:11,w:3,l:10,ppg:111.00,ppga:126.55},{y:2021,n:'Jake',f:12,w:4,l:10,ppg:110.76,ppga:124.37},{y:2020,n:'Brendan',f:10,w:5,l:8,ppg:109.66,ppga:129.19},{y:2021,n:'Wes',f:11,w:5,l:9,ppg:108.11,ppga:124.67},{y:2022,n:'Ron',f:11,w:3,l:11,ppg:106.97,ppga:127.33},{y:2019,n:'Carson',f:9,w:5,l:8,ppg:105.22,ppga:120.48},{y:2019,n:'Ron',f:12,w:3,l:10,ppg:101.58,ppga:132.04}
+];
+const LG_AVG={2015:137.55,2016:145.19,2017:130.25,2018:144.60,2019:120.77,2020:124.27,2021:122.94,2022:129.75,2023:132.44,2024:133.50,2025:129.74};
+const THRESH={Blaise:{g:108,t200:0,t180:1,t170:6,t160:9,t150:17,t140:24,t130:42,t120:61,t110:81,t100:97,s100:11,s90:4,s80:0,s70:0},Brendan:{g:105,t200:0,t180:8,t170:12,t160:18,t150:24,t140:36,t130:50,t120:65,t110:85,t100:92,s100:13,s90:8,s80:4,s70:2},Carson:{g:105,t200:0,t180:4,t170:7,t160:13,t150:16,t140:28,t130:46,t120:67,t110:76,t100:85,s100:20,s90:11,s80:6,s70:2},Cobi:{g:105,t200:1,t180:1,t170:2,t160:10,t150:21,t140:32,t130:48,t120:68,t110:85,t100:98,s100:7,s90:6,s80:2,s70:0},Dalton:{g:111,t200:0,t180:3,t170:5,t160:15,t150:24,t140:37,t130:55,t120:75,t110:89,t100:99,s100:12,s90:6,s80:1,s70:0},Jake:{g:105,t200:2,t180:5,t170:10,t160:14,t150:20,t140:28,t130:44,t120:65,t110:74,t100:89,s100:16,s90:7,s80:4,s70:1},Kyle:{g:105,t200:1,t180:3,t170:5,t160:17,t150:29,t140:39,t130:54,t120:71,t110:81,t100:91,s100:14,s90:7,s80:5,s70:1},Matthew:{g:98,t200:1,t180:3,t170:7,t160:15,t150:19,t140:32,t130:45,t120:59,t110:71,t100:82,s100:16,s90:9,s80:7,s70:4},Nolan:{g:31,t200:0,t180:1,t170:1,t160:4,t150:6,t140:11,t130:17,t120:21,t110:25,t100:29,s100:2,s90:1,s80:0,s70:0},Ron:{g:105,t200:0,t180:0,t170:1,t160:8,t150:20,t140:28,t130:41,t120:59,t110:73,t100:80,s100:25,s90:15,s80:7,s70:4},Sam:{g:105,t200:0,t180:3,t170:5,t160:12,t150:24,t140:41,t130:50,t120:63,t110:80,t100:89,s100:16,s90:7,s80:1,s70:1},Wes:{g:102,t200:0,t180:3,t170:8,t160:14,t150:24,t140:34,t130:43,t120:57,t110:72,t100:89,s100:13,s90:10,s80:2,s70:2}};
+const BOOMBUST={Blaise:{boom:17,bust:11,elite:6,disaster:0,hsl:1,lsw:3,avg:125.6,sd:22.1,cv:17.6},Brendan:{boom:24,bust:13,elite:12,disaster:4,hsl:0,lsw:3,avg:130.8,sd:28.8,cv:22.0},Carson:{boom:16,bust:20,elite:7,disaster:6,hsl:4,lsw:0,avg:125.9,sd:28.1,cv:22.4},Cobi:{boom:21,bust:7,elite:2,disaster:2,hsl:3,lsw:3,avg:129.1,sd:23.0,cv:17.8},Dalton:{boom:24,bust:12,elite:5,disaster:1,hsl:1,lsw:3,avg:130.7,sd:23.7,cv:18.1},Jake:{boom:20,bust:16,elite:10,disaster:4,hsl:1,lsw:6,avg:128.2,sd:28.7,cv:22.4},Kyle:{boom:29,bust:14,elite:5,disaster:5,hsl:7,lsw:2,avg:130.9,sd:27.2,cv:20.8},Matthew:{boom:19,bust:16,elite:7,disaster:7,hsl:0,lsw:3,avg:126.8,sd:29.5,cv:23.2},Nolan:{boom:6,bust:2,elite:1,disaster:0,hsl:0,lsw:1,avg:133.4,sd:22.5,cv:16.9},Ron:{boom:20,bust:25,elite:1,disaster:7,hsl:3,lsw:3,avg:121.4,sd:28.2,cv:23.2},Sam:{boom:24,bust:16,elite:5,disaster:1,hsl:2,lsw:4,avg:128.8,sd:25.6,cv:19.9},Wes:{boom:24,bust:13,elite:8,disaster:2,hsl:6,lsw:5,avg:127.2,sd:27.4,cv:21.6}};
+const STREAKS={Blaise:{maxW:5,maxL:8,max130:5,maxS120:5,best5:156.5,worst5:102.0,best10:8,worst10:1},Brendan:{maxW:6,maxL:7,max130:6,maxS120:4,best5:165.7,worst5:92.2,best10:9,worst10:1},Carson:{maxW:4,maxL:10,max130:5,maxS120:5,best5:148.3,worst5:95.3,best10:7,worst10:0},Cobi:{maxW:6,maxL:6,max130:3,maxS120:4,best5:157.6,worst5:98.7,best10:9,worst10:2},Dalton:{maxW:11,maxL:5,max130:10,maxS120:4,best5:154.2,worst5:107.7,best10:10,worst10:4},Jake:{maxW:6,maxL:8,max130:4,maxS120:3,best5:160.8,worst5:98.4,best10:9,worst10:1},Kyle:{maxW:7,maxL:4,max130:8,maxS120:3,best5:153.5,worst5:95.5,best10:8,worst10:3},Matthew:{maxW:6,maxL:4,max130:6,maxS120:4,best5:162.9,worst5:73.5,best10:8,worst10:3},Nolan:{maxW:3,maxL:4,max130:6,maxS120:2,best5:163.5,worst5:116.5,best10:6,worst10:3},Ron:{maxW:5,maxL:8,max130:5,maxS120:9,best5:156.4,worst5:81.4,best10:7,worst10:1},Sam:{maxW:7,maxL:5,max130:6,maxS120:3,best5:164.3,worst5:107.5,best10:7,worst10:1},Wes:{maxW:5,maxL:7,max130:10,maxS120:6,best5:166.8,worst5:96.0,best10:8,worst10:2}};
+const SPLITS={Blaise:{e_avg:120.3,e_w:31,m_avg:128.6,m_w:54,l_avg:127.9,l_w:51,h1_avg:121.5,h1_w:35,h2_avg:129.1,h2_w:54},Brendan:{e_avg:136.9,e_w:49,m_avg:131.0,m_w:54,l_avg:125.5,l_w:43,h1_avg:136.6,h1_w:53,h2_avg:125.7,h2_w:43},Carson:{e_avg:130.3,e_w:49,m_avg:127.8,m_w:57,l_avg:121.0,l_w:31,h1_avg:129.5,h1_w:51,h2_avg:122.7,h2_w:38},Cobi:{e_avg:131.1,e_w:43,m_avg:127.5,m_w:57,l_avg:128.4,l_w:52,h1_avg:129.4,h1_w:45,h2_avg:128.8,h2_w:55},Dalton:{e_avg:138.6,e_w:77,m_avg:124.6,m_w:54,l_avg:128.6,l_w:65,h1_avg:134.6,h1_w:71,h2_avg:127.7,h2_w:61},Jake:{e_avg:132.8,e_w:60,m_avg:128.6,m_w:64,l_avg:124.1,l_w:43,h1_avg:127.6,h1_w:57,h2_avg:128.6,h2_w:52},Kyle:{e_avg:128.5,e_w:43,m_avg:125.8,m_w:54,l_avg:136.3,l_w:55,h1_avg:126.7,h1_w:47,h2_avg:134.6,h2_w:54},Matthew:{e_avg:125.3,e_w:47,m_avg:124.9,m_w:58,l_avg:129.0,l_w:61,h1_avg:127.4,h1_w:55,h2_avg:126.4,h2_w:57},Nolan:{e_avg:137.6,e_w:60,m_avg:135.5,m_w:38,l_avg:128.9,l_w:31,h1_avg:139.7,h1_w:57,h2_avg:128.3,h2_w:29},Ron:{e_avg:128.1,e_w:46,m_avg:117.5,m_w:25,l_avg:118.3,l_w:48,h1_avg:125.4,h1_w:41,h2_avg:117.8,h2_w:41},Sam:{e_avg:132.0,e_w:54,m_avg:125.3,m_w:54,l_avg:128.6,l_w:55,h1_avg:128.3,h1_w:51,h2_avg:129.3,h2_w:57},Wes:{e_avg:132.3,e_w:49,m_avg:124.2,m_w:29,l_avg:124.8,l_w:49,h1_avg:128.2,h1_w:41,h2_avg:126.3,h2_w:45}};
+const TOP15=[{n:'Kyle',y:2020,wk:12,pts:209.92,opp:'Brendan',r:'W'},{n:'Jake',y:2025,wk:7,pts:209.18,opp:'Cobi',r:'W'},{n:'Jake',y:2025,wk:15,pts:205.62,opp:'Blaise',r:'W'},{n:'Cobi',y:2023,wk:4,pts:205.48,opp:'Ron',r:'W'},{n:'Matthew',y:2023,wk:10,pts:203.34,opp:'Sam',r:'W'},{n:'Jake',y:2020,wk:8,pts:198.84,opp:'Ron',r:'W'},{n:'Brendan',y:2023,wk:8,pts:198.62,opp:'Matthew',r:'W'},{n:'Sam',y:2022,wk:8,pts:198.40,opp:'Kyle',r:'W'},{n:'Matthew',y:2022,wk:10,pts:197.06,opp:'Wes',r:'W'},{n:'Jake',y:2020,wk:9,pts:195.38,opp:'Wes',r:'W'},{n:'Carson',y:2024,wk:5,pts:191.88,opp:'Wes',r:'W'},{n:'Brendan',y:2019,wk:4,pts:190.78,opp:'Ron',r:'W'},{n:'Carson',y:2020,wk:1,pts:190.18,opp:'Wes',r:'W'},{n:'Nolan',y:2025,wk:3,pts:189.96,opp:'Dalton',r:'W'},{n:'Kyle',y:2022,wk:13,pts:189.20,opp:'Caleb',r:'W'}];
+const BOT15=[{n:'Ron',y:2021,wk:16,pts:35.04,opp:'Matthew',r:'L'},{n:'Brendan',y:2020,wk:9,pts:47.26,opp:'Sam',r:'L'},{n:'Matthew',y:2021,wk:17,pts:47.30,opp:'Sam',r:'L'},{n:'Wes',y:2021,wk:4,pts:52.36,opp:'Dalton',r:'L'},{n:'Matthew',y:2021,wk:16,pts:55.10,opp:'Ron',r:'W'},{n:'Sam',y:2025,wk:16,pts:56.02,opp:'Blaise',r:'L'},{n:'Carson',y:2019,wk:10,pts:56.42,opp:'Wes',r:'L'},{n:'Jake',y:2021,wk:7,pts:57.70,opp:'Matthew',r:'L'},{n:'Ron',y:2022,wk:5,pts:57.86,opp:'Cobi',r:'L'},{n:'Carson',y:2021,wk:17,pts:59.76,opp:'Ron',r:'L'},{n:'Ron',y:2019,wk:10,pts:62.70,opp:'Dalton',r:'L'},{n:'Kyle',y:2024,wk:7,pts:64.34,opp:'Cobi',r:'L'},{n:'Ron',y:2021,wk:17,pts:65.00,opp:'Carson',r:'W'},{n:'Wes',y:2021,wk:10,pts:65.80,opp:'Blaise',r:'L'},{n:'Matthew',y:2021,wk:15,pts:67.46,opp:'Blaise',r:'L'}];
+const TOP_WEEKS=[{y:2022,w:8,avg:146.6,min:105.8,max:198.4,n:11},{y:2023,w:16,avg:144.6,min:120.9,max:162.5,n:8},{y:2022,w:2,avg:143.3,min:96.5,max:183.0,n:11},{y:2024,w:16,avg:143.3,min:103.6,max:182.4,n:8},{y:2022,w:15,avg:141.6,min:101.0,max:172.6,n:7},{y:2024,w:14,avg:141.3,min:95.6,max:185.9,n:12},{y:2023,w:3,avg:141.2,min:108.5,max:185.0,n:11},{y:2022,w:4,avg:140.6,min:106.7,max:177.3,n:11},{y:2023,w:12,avg:140.6,min:97.8,max:176.1,n:11},{y:2024,w:13,avg:140.4,min:80.2,max:181.2,n:12},{y:2023,w:17,avg:139.3,min:97.6,max:169.5,n:8},{y:2025,w:15,avg:138.9,min:94.4,max:205.6,n:8},{y:2024,w:9,avg:138.7,min:86.9,max:162.7,n:12},{y:2024,w:5,avg:138.7,min:85.9,max:191.9,n:12},{y:2023,w:2,avg:138.7,min:106.1,max:155.0,n:11}];
+const BOT_WEEKS=[{y:2021,w:17,avg:100.1,min:47.3,max:154.1,n:7},{y:2022,w:17,avg:105.1,min:68.9,max:134.5,n:7},{y:2021,w:16,avg:105.6,min:35.0,max:164.8,n:7},{y:2019,w:7,avg:106.0,min:86.5,max:148.8,n:10},{y:2019,w:10,avg:107.2,min:56.4,max:136.2,n:10},{y:2020,w:6,avg:108.6,min:79.3,max:152.6,n:11},{y:2021,w:15,avg:110.2,min:67.5,max:143.2,n:7},{y:2021,w:10,avg:110.4,min:65.8,max:147.4,n:11},{y:2021,w:12,avg:111.7,min:81.9,max:152.9,n:11},{y:2019,w:9,avg:113.1,min:76.2,max:155.6,n:10},{y:2021,w:9,avg:114.2,min:77.6,max:139.5,n:11},{y:2019,w:13,avg:114.4,min:74.1,max:156.0,n:10},{y:2022,w:6,avg:116.1,min:71.6,max:140.4,n:11},{y:2021,w:4,avg:117.0,min:52.4,max:153.6,n:11},{y:2019,w:11,avg:117.1,min:83.2,max:153.7,n:10}];
+const BY_YEAR=[{y:2015,tot:9,comp:8,vet:1,moved:25},{y:2016,tot:16,comp:14,vet:2,moved:37},{y:2017,tot:58,comp:48,vet:10,moved:174},{y:2018,tot:32,comp:24,vet:8,moved:100},{y:2019,tot:17,comp:17,vet:0,moved:46},{y:2020,tot:35,comp:27,vet:8,moved:124},{y:2021,tot:20,comp:16,vet:4,moved:63},{y:2022,tot:8,comp:7,vet:1,moved:26},{y:2023,tot:10,comp:10,vet:0,moved:27},{y:2024,tot:5,comp:5,vet:0,moved:16},{y:2025,tot:5,comp:5,vet:0,moved:14}];
+const TOP_TEAMS=[
+{t:"Rotisserie Chickens",tot:54,c:53,v:1,s:69,r:76},
+{t:"What the Bagels",tot:34,c:25,v:9,s:65,r:50},
+{t:"Jake and Bake",tot:26,c:22,v:4,s:35,r:36},
+{t:"The Pawpaws",tot:24,c:19,v:5,s:41,r:41},
+{t:"Sherman Bearcats",tot:23,c:19,v:4,s:29,r:39},
+{t:"jake’s Team",tot:20,c:12,v:8,s:27,r:40},
+{t:"brendan’s Team",tot:17,c:10,v:7,s:30,r:25},
+{t:"Ball Sack",tot:15,c:10,v:5,s:21,r:23},
+{t:"Muy interasante",tot:12,c:10,v:2,s:16,r:18},
+{t:"Big D",tot:10,c:9,v:1,s:14,r:16},
+{t:"lil pumps",tot:9,c:5,v:4,s:15,r:13},
+{t:"crob222",tot:8,c:7,v:1,s:16,r:14},
+{t:"Coach Porter’s Team",tot:8,c:7,v:1,s:13,r:10},
+{t:"What The Biscuits",tot:8,c:7,v:1,s:13,r:12},
+{t:"Eatapies",tot:8,c:8,v:0,s:11,r:11},
+{t:"Brendan’s Team",tot:7,c:5,v:2,s:12,r:10},
+{t:"It’s Joever.",tot:7,c:7,v:0,s:9,r:8},
+{t:"Lil Pumps",tot:6,c:6,v:0,s:8,r:7},
+{t:"MEECH THE CHAMPION",tot:6,c:6,v:0,s:12,r:11},
+{t:"What The Croissants",tot:5,c:5,v:0,s:7,r:5},
+{t:"Alabama cousin fuckers",tot:5,c:4,v:1,s:7,r:6},
+{t:"Nolan’s Swag Team",tot:5,c:5,v:0,s:8,r:11},
+{t:"Bob Squad",tot:5,c:3,v:2,s:7,r:7},
+{t:"What the Biscuits",tot:5,c:5,v:0,s:8,r:7},
+{t:"Pats the Blount",tot:4,c:4,v:0,s:8,r:5},
+{t:"what the croissants",tot:4,c:2,v:2,s:6,r:4},
+{t:"DADDY",tot:4,c:4,v:0,s:7,r:7},
+{t:"baLLsack",tot:4,c:2,v:2,s:8,r:7},
+{t:"Holiday  Shitapies",tot:4,c:4,v:0,s:9,r:5},
+{t:"Dee’s Team",tot:4,c:3,v:1,s:6,r:7},
+{t:"MEECHY justice",tot:4,c:4,v:0,s:4,r:7},
+{t:"Spank City Rotisserie Chickens",tot:4,c:4,v:0,s:5,r:8},
+{t:"FredDeadRedemption",tot:3,c:3,v:0,s:3,r:4},
+{t:"SpankTown RotisserieChickens",tot:3,c:3,v:0,s:4,r:3},
+{t:"HUNGRYMAN MEECH",tot:3,c:3,v:0,s:4,r:7},
+{t:"Hotshooter1500",tot:3,c:3,v:0,s:5,r:6},
+{t:"el cobrobro",tot:3,c:3,v:0,s:4,r:5},
+{t:"MoMo’s Maple Bacon",tot:3,c:3,v:0,s:4,r:6},
+{t:"Rotisserie Turkeys",tot:3,c:3,v:0,s:3,r:3},
+{t:"Texoma Medical Center",tot:3,c:2,v:1,s:8,r:4},
+{t:"sadsack",tot:3,c:3,v:0,s:4,r:4},
+{t:"da resting dawgs",tot:3,c:2,v:1,s:6,r:7},
+{t:"The Jelly Donuts",tot:2,c:2,v:0,s:2,r:2},
+{t:"your mom",tot:2,c:2,v:0,s:3,r:2},
+{t:"Dalt in the Wound",tot:2,c:2,v:0,s:2,r:2},
+{t:"Tripods",tot:2,c:2,v:0,s:3,r:2},
+{t:"BALLSACK",tot:2,c:2,v:0,s:3,r:3},
+{t:"BALLSUCK",tot:2,c:2,v:0,s:2,r:3},
+{t:"Hugo",tot:2,c:2,v:0,s:3,r:2},
+{t:"#RIPBOZO",tot:2,c:1,v:1,s:3,r:3},
+{t:"Retired……",tot:2,c:2,v:0,s:4,r:3},
+{t:"Zeke Virus",tot:2,c:1,v:1,s:5,r:3},
+{t:"Season is officially over",tot:1,c:1,v:0,s:1,r:2},
+{t:"Kirko ‘swag n surf” cuzzo",tot:1,c:1,v:0,s:1,r:2},
+{t:"Penis man",tot:1,c:1,v:0,s:2,r:1},
+{t:"gibbs me dem TDs",tot:1,c:1,v:0,s:2,r:2},
+{t:"carson is a bitch",tot:1,c:1,v:0,s:2,r:1},
+{t:"Quan Solo",tot:1,c:1,v:0,s:1,r:1},
+{t:"RAPERS",tot:1,c:1,v:0,s:2,r:1},
+{t:"What the BageLs",tot:1,c:0,v:1,s:2,r:2},
+{t:"The MERRY Meech Boners",tot:1,c:1,v:0,s:1,r:1},
+{t:"JJets Get Ready To Rumble",tot:1,c:1,v:0,s:2,r:3},
+{t:"da STANK dawgs",tot:1,c:1,v:0,s:1,r:1},
+{t:"DK HAVE IT YOUR WAY",tot:1,c:1,v:0,s:1,r:1},
+{t:"da stinky dawgs",tot:1,c:1,v:0,s:2,r:2},
+{t:"Ridders squad",tot:1,c:1,v:0,s:1,r:2},
+{t:"Crob222",tot:1,c:1,v:0,s:1,r:2},
+{t:"Kyles Friend",tot:1,c:1,v:0,s:2,r:2},
+{t:"Suck me",tot:1,c:1,v:0,s:2,r:1},
+{t:"BALL SACK",tot:1,c:1,v:0,s:1,r:1},
+{t:"Iwontbelastthistime",tot:1,c:1,v:0,s:2,r:2},
+{t:"Cody’s Team",tot:1,c:1,v:0,s:1,r:1},
+{t:"J. J. SWATT Team",tot:1,c:1,v:0,s:1,r:1}
+];
+const TOP_PLAYERS=[
+{p:"Alvin Kamara",pos:"RB",n:14},
+{p:"Todd Gurley",pos:"RB",n:11},
+{p:"Corey Davis",pos:"WR",n:9},
+{p:"Mike Evans",pos:"WR",n:9},
+{p:"Cooper Kupp",pos:"WR",n:9},
+{p:"Tevin Coleman",pos:"RB",n:8},
+{p:"Christian McCaffrey",pos:"RB",n:7},
+{p:"Carlos Hyde",pos:"RB",n:6},
+{p:"Amari Cooper",pos:"WR",n:6},
+{p:"Jimmy Graham",pos:"TE",n:6},
+{p:"Sterling Shepard",pos:"WR",n:6},
+{p:"Latavius Murray",pos:"RB",n:6},
+{p:"Jamison Crowder",pos:"WR",n:6},
+{p:"Keenan Allen",pos:"WR",n:6},
+{p:"Kelvin Benjamin",pos:"WR",n:5},
+{p:"Julio Jones",pos:"WR",n:5},
+{p:"Dion Lewis",pos:"RB",n:5},
+{p:"Adam Thielen",pos:"WR",n:5},
+{p:"Aaron Rodgers",pos:"QB",n:5},
+{p:"Kareem Hunt",pos:"RB",n:5},
+{p:"Leonard Fournette",pos:"RB",n:5},
+{p:"Hollywood Brown",pos:"WR",n:5},
+{p:"Michael Thomas",pos:"WR",n:5},
+{p:"James White",pos:"RB",n:5},
+{p:"Jordan Howard",pos:"RB",n:5},
+{p:"Cole Beasley",pos:"WR",n:5},
+{p:"Terry McLaurin",pos:"WR",n:4},
+{p:"Chris Thompson",pos:"RB",n:4},
+{p:"Christian Kirk",pos:"WR",n:4},
+{p:"Terrelle Pryor Sr.",pos:"WR",n:4},
+{p:"Myles Gaskin",pos:"RB",n:4},
+{p:"Tom Brady",pos:"QB",n:4},
+{p:"Calvin Ridley",pos:"WR",n:4},
+{p:"Larry Fitzgerald",pos:"WR",n:4},
+{p:"Kyle Rudolph",pos:"TE",n:4},
+{p:"David Montgomery",pos:"RB",n:4},
+{p:"Dalvin Cook",pos:"RB",n:4},
+{p:"Tyreek Hill",pos:"WR",n:4},
+{p:"JuJu Smith-Schuster",pos:"WR",n:4},
+{p:"Devonta Freeman",pos:"RB",n:4},
+{p:"Dez Bryant",pos:"WR",n:4},
+{p:"Josh Gordon",pos:"WR",n:4},
+{p:"Rob Gronkowski",pos:"TE",n:4},
+{p:"Jordy Nelson",pos:"WR",n:4},
+{p:"Theo Riddick",pos:"RB",n:4},
+{p:"Golden Tate",pos:"WR",n:4},
+{p:"John Brown",pos:"WR",n:3},
+{p:"George Kittle",pos:"TE",n:3},
+{p:"Lamar Jackson",pos:"QB",n:3},
+{p:"Jerry Jeudy",pos:"WR",n:3},
+{p:"Hunter Henry",pos:"TE",n:3},
+{p:"Isaiah Crowell",pos:"RB",n:3},
+{p:"J.D. McKissic",pos:"RB",n:3},
+{p:"J.K. Dobbins",pos:"RB",n:3},
+{p:"Evan Engram",pos:"TE",n:3},
+{p:"Emmanuel Sanders",pos:"WR",n:3},
+{p:"Darren Waller",pos:"TE",n:3},
+{p:"Davante Adams",pos:"WR",n:3},
+{p:"Jordan Reed",pos:"TE",n:3},
+{p:"Doug Martin",pos:"RB",n:3},
+{p:"Kirk Cousins",pos:"QB",n:3},
+{p:"Kenyan Drake",pos:"RB",n:3},
+{p:"Josh Allen",pos:"QB",n:3},
+{p:"Josh Jacobs",pos:"RB",n:3},
+{p:"Derek Carr",pos:"QB",n:3},
+{p:"Marvin Jones Jr.",pos:"WR",n:3},
+{p:"Randall Cobb",pos:"WR",n:3},
+{p:"Stefon Diggs",pos:"WR",n:3},
+{p:"Austin Ekeler",pos:"RB",n:3},
+{p:"Zach Ertz",pos:"TE",n:3},
+{p:"CeeDee Lamb",pos:"WR",n:3},
+{p:"Zack Moss",pos:"RB",n:3},
+{p:"Taylor Gabriel",pos:"WR",n:3},
+{p:"Nick Chubb",pos:"RB",n:3},
+{p:"Aaron Jones Sr.",pos:"RB",n:3},
+{p:"Nelson Agholor",pos:"WR",n:3},
+{p:"Mike Williams",pos:"WR",n:3},
+{p:"Mike Davis",pos:"RB",n:3},
+{p:"Melvin Gordon III",pos:"RB",n:3},
+{p:"Curtis Samuel",pos:"WR",n:3},
+{p:"Alex Collins",pos:"RB",n:3},
+{p:"Matt Forte",pos:"RB",n:3},
+{p:"Nyheim Miller-Hines",pos:"RB",n:3},
+{p:"A.J. Green",pos:"WR",n:3},
+{p:"DJ Moore",pos:"WR",n:3},
+{p:"Brandin Cooks",pos:"WR",n:3},
+{p:"Brandon Aiyuk",pos:"WR",n:3},
+{p:"Matt Breida",pos:"RB",n:3},
+{p:"Joe Mixon",pos:"RB",n:2},
+{p:"Amon-Ra St. Brown",pos:"WR",n:2},
+{p:"Jonathan Taylor",pos:"RB",n:2},
+{p:"Andrew Luck",pos:"QB",n:2},
+{p:"Joe Burrow",pos:"QB",n:2},
+{p:"Antonio Brown",pos:"WR",n:2},
+{p:"Jimmy Garoppolo",pos:"QB",n:2},
+{p:"Antonio Gates",pos:"TE",n:2},
+{p:"Antonio Gibson",pos:"RB",n:2},
+{p:"Jerick McKinnon",pos:"RB",n:2},
+{p:"Jaylen Waddle",pos:"WR",n:2},
+{p:"Austin Seferian-Jenkins",pos:"TE",n:2},
+{p:"Jay Ajayi",pos:"RB",n:2},
+{p:"Ben Roethlisberger",pos:"QB",n:2},
+{p:"Jared Cook",pos:"TE",n:2},
+{p:"Bijan Robinson",pos:"RB",n:2},
+{p:"Jamaal Williams",pos:"RB",n:2},
+{p:"James Conner",pos:"RB",n:2},
+{p:"Alshon Jeffery",pos:"WR",n:2},
+{p:"Marshawn Lynch",pos:"RB",n:2},
+{p:"Marquise Goodwin",pos:"WR",n:2},
+{p:"Marlon Mack",pos:"RB",n:2},
+{p:"Mark Ingram II",pos:"RB",n:2},
+{p:"Mark Andrews",pos:"TE",n:2},
+{p:"LeSean McCoy",pos:"RB",n:2},
+{p:"Kyler Murray",pos:"QB",n:2},
+{p:"Noah Fant",pos:"TE",n:2},
+{p:"Kerryon Johnson",pos:"RB",n:2},
+{p:"Kenneth Barber",pos:"RB",n:2},
+{p:"Trey Burton",pos:"TE",n:2},
+{p:"Jameis Winston",pos:"QB",n:2},
+{p:"Keelan Cole Sr.",pos:"WR",n:2},
+{p:"Tyler Boyd",pos:"WR",n:2},
+{p:"Justin Jackson",pos:"RB",n:2},
+{p:"Tyler Lockett",pos:"WR",n:2},
+{p:"Wendell Smallwood",pos:"RB",n:2},
+{p:"Josh McCown",pos:"QB",n:2},
+{p:"Will Fuller V",pos:"WR",n:2},
+{p:"Willie Snead IV",pos:"WR",n:2},
+{p:"Tarik Cohen",pos:"RB",n:2},
+{p:"Alex Smith",pos:"QB",n:2},
+{p:"Jordan Matthews",pos:"WR",n:2},
+{p:"Alexander Mattison",pos:"RB",n:2},
+{p:"Tucker Kraft",pos:"TE",n:2},
+{p:"Rob Kelley",pos:"RB",n:2},
+{p:"Robbie Chosen",pos:"WR",n:2},
+{p:"Eddie Lacy",pos:"RB",n:2},
+{p:"Ronald Jones",pos:"RB",n:2},
+{p:"Diontae Johnson",pos:"WR",n:2},
+{p:"Demaryius Thomas",pos:"WR",n:2},
+{p:"DeVonta Smith",pos:"WR",n:2},
+{p:"DeVante Parker",pos:"WR",n:2},
+{p:"DeAndre Hopkins",pos:"WR",n:2},
+{p:"Dawson Knox",pos:"TE",n:2},
+{p:"Elijah Mitchell",pos:"RB",n:2},
+{p:"Brian Robinson",pos:"RB",n:2},
+{p:"Cam Newton",pos:"QB",n:2},
+{p:"Danny Woodhead",pos:"RB",n:2},
+{p:"Damien Harris",pos:"RB",n:2},
+{p:"DK Metcalf",pos:"WR",n:2},
+{p:"D'Andre Swift",pos:"RB",n:2},
+{p:"Corey Coleman",pos:"WR",n:2},
+{p:"Chase Claypool",pos:"WR",n:2},
+{p:"Clyde Edwards-Helaire",pos:"RB",n:2},
+{p:"Chris Godwin Jr.",pos:"WR",n:2},
+{p:"Chris Ivory",pos:"RB",n:2},
+{p:"David Johnson",pos:"RB",n:2},
+{p:"Hayden Hurst",pos:"TE",n:2},
+{p:"Rashod Bateman",pos:"WR",n:2},
+{p:"George Pickens",pos:"WR",n:2},
+{p:"Odell Beckham Jr.",pos:"WR",n:2},
+{p:"Ezekiel Elliott",pos:"RB",n:2},
+{p:"Philip Rivers",pos:"QB",n:2},
+{p:"Sammy Watkins",pos:"WR",n:2},
+{p:"A.J. Brown",pos:"WR",n:2},
+{p:"Bruce Ellington",pos:"WR",n:1},
+{p:"Trevor Lawrence",pos:"QB",n:1},
+{p:"Tre'Quan Smith",pos:"WR",n:1},
+{p:"Tyjae Spears",pos:"RB",n:1},
+{p:"Tyler Eifert",pos:"TE",n:1},
+{p:"Travis Kelce",pos:"TE",n:1},
+{p:"Cameron Meredith",pos:"WR",n:1},
+{p:"Austin Hooper",pos:"TE",n:1},
+{p:"Percy Harvin",pos:"WR",n:1},
+{p:"Baker Mayfield",pos:"QB",n:1},
+{p:"Cameron Brate",pos:"TE",n:1},
+{p:"Raheem Mostert",pos:"RB",n:1},
+{p:"Carson Palmer",pos:"QB",n:1},
+{p:"Case Keenum",pos:"QB",n:1},
+{p:"Terrance Williams",pos:"WR",n:1},
+{p:"Tee Higgins",pos:"WR",n:1},
+{p:"Taylor Heinicke",pos:"QB",n:1},
+{p:"Bears",pos:"DEF",n:1},
+{p:"Charles Clay",pos:"TE",n:1},
+{p:"Benny Snell Jr.",pos:"RB",n:1},
+{p:"O.J. Howard",pos:"TE",n:1},
+{p:"Chase Edmonds",pos:"RB",n:1},
+{p:"Chris Carson",pos:"RB",n:1},
+{p:"Najee Harris",pos:"RB",n:1},
+{p:"Bilal Powell",pos:"RB",n:1},
+{p:"Blake Bortles",pos:"QB",n:1},
+{p:"Breece Hall",pos:"RB",n:1},
+{p:"Ricky Seals-Jones",pos:"TE",n:1},
+{p:"Allen Robinson",pos:"WR",n:1},
+{p:"Allen Lazard",pos:"WR",n:1},
+{p:"Rex Burkhead",pos:"RB",n:1},
+{p:"Ray Davis",pos:"RB",n:1},
+{p:"Ameer Abdullah",pos:"RB",n:1},
+{p:"Robert Woods",pos:"WR",n:1},
+{p:"Romeo Doubs",pos:"WR",n:1},
+{p:"Adrian Peterson",pos:"RB",n:1},
+{p:"Royce Freeman",pos:"RB",n:1},
+{p:"Russell Wilson",pos:"QB",n:1},
+{p:"SUSP Robbie Chosen",pos:"WR",n:1},
+{p:"Sam Bradford",pos:"QB",n:1},
+{p:"Zach Miller",pos:"TE",n:1},
+{p:"Tyler Higbee",pos:"TE",n:1},
+{p:"Rashee Rice",pos:"WR",n:1},
+{p:"Zach Charbonnet",pos:"RB",n:1},
+{p:"Mohamed Sanu",pos:"WR",n:1},
+{p:"Steelers",pos:"DEF",n:1},
+{p:"T.J. Hockenson",pos:"TE",n:1},
+{p:"Tyrone Tracy Jr.",pos:"RB",n:1},
+{p:"Allen Hurns",pos:"WR",n:1},
+{p:"Tyrell Williams",pos:"WR",n:1},
+{p:"T.Y. Hilton",pos:"WR",n:1},
+{p:"Quentin Johnston",pos:"WR",n:1},
+{p:"Tyler Warren",pos:"TE",n:1},
+{p:"Phillip Lindsay",pos:"RB",n:1},
+{p:"Brandon Marshall",pos:"WR",n:1},
+{p:"Arian Foster",pos:"RB",n:1},
+{p:"Samaje Perine",pos:"RB",n:1},
+{p:"Joe Flacco",pos:"QB",n:1},
+{p:"Eric Ebron",pos:"TE",n:1},
+{p:"Eric Decker",pos:"WR",n:1},
+{p:"Joique Bell",pos:"RB",n:1},
+{p:"Jonathan Stewart",pos:"RB",n:1},
+{p:"Jonnu Smith",pos:"TE",n:1},
+{p:"Jordan Addison",pos:"WR",n:1},
+{p:"Zay Jones",pos:"WR",n:1},
+{p:"Duke Johnson",pos:"RB",n:1},
+{p:"Doug Baldwin",pos:"WR",n:1},
+{p:"Dontrell Hilliard",pos:"RB",n:1},
+{p:"Dexter Williams",pos:"RB",n:1},
+{p:"Devin Funchess",pos:"WR",n:1},
+{p:"Joshua Palmer",pos:"WR",n:1},
+{p:"Derrius Guice",pos:"RB",n:1},
+{p:"Julian Edelman",pos:"WR",n:1},
+{p:"Dwayne Allen",pos:"TE",n:1},
+{p:"Jalen Hurts",pos:"QB",n:1},
+{p:"Jahan Dotson",pos:"WR",n:1},
+{p:"James Robinson",pos:"RB",n:1},
+{p:"Jacoby Brissett",pos:"QB",n:1},
+{p:"Ja'Marr Chase",pos:"WR",n:1},
+{p:"Ito Smith",pos:"RB",n:1},
+{p:"Jared Goff",pos:"QB",n:1},
+{p:"Jarvis Landry",pos:"WR",n:1},
+{p:"Geno Smith",pos:"QB",n:1},
+{p:"Jaxon Smith-Njigba",pos:"WR",n:1},
+{p:"Hunter Renfrow",pos:"WR",n:1},
+{p:"Henry Ruggs III",pos:"WR",n:1},
+{p:"Jeremy Langford",pos:"RB",n:1},
+{p:"Jeremy Maclin",pos:"WR",n:1},
+{p:"Jerome Ford",pos:"RB",n:1},
+{p:"Greg Olsen",pos:"TE",n:1},
+{p:"Jesse James",pos:"TE",n:1},
+{p:"Javorius Allen",pos:"RB",n:1},
+{p:"Marcus Mariota",pos:"QB",n:1},
+{p:"Markus Wheaton",pos:"WR",n:1},
+{p:"Dalton Schultz",pos:"TE",n:1},
+{p:"Marquez Valdes-Scantling",pos:"WR",n:1},
+{p:"Dalton Kincaid",pos:"TE",n:1},
+{p:"Dallas Goedert",pos:"TE",n:1},
+{p:"Martavis Bryant",pos:"WR",n:1},
+{p:"Derrick Henry",pos:"RB",n:1},
+{p:"Dak Prescott",pos:"QB",n:1},
+{p:"Matt Bryant",pos:"K",n:1},
+{p:"Michael Carter",pos:"RB",n:1},
+{p:"Michael Gallup",pos:"WR",n:1},
+{p:"Cordarrelle Patterson",pos:"RB",n:1},
+{p:"Colts",pos:"DEF",n:1},
+{p:"Mike Gillislee",pos:"RB",n:1},
+{p:"Miles Sanders",pos:"RB",n:1},
+{p:"Martellus Bennett",pos:"TE",n:1},
+{p:"Kalen Ballage",pos:"RB",n:1},
+{p:"Delanie Walker",pos:"TE",n:1},
+{p:"Deebo Samuel",pos:"WR",n:1},
+{p:"Dede Westbrook",pos:"WR",n:1},
+{p:"Keke Coutee",pos:"WR",n:1},
+{p:"Kenny Golladay",pos:"WR",n:1},
+{p:"Kenny Stills",pos:"WR",n:1},
+{p:"De'Von Achane",pos:"RB",n:1},
+{p:"Luther Burden III",pos:"WR",n:1},
+{p:"David Njoku",pos:"TE",n:1},
+{p:"Ladd McConkey",pos:"WR",n:1},
+{p:"Darren Sproles",pos:"RB",n:1},
+{p:"Darrell Henderson Jr.",pos:"RB",n:1},
+{p:"Darrel Williams",pos:"RB",n:1},
+{p:"Le'Veon Bell",pos:"RB",n:1},
+{p:"Darnell Mooney",pos:"WR",n:1},
+{p:"Darius Slayton",pos:"WR",n:1},
+{p:"Kyle Pitts Sr.",pos:"TE",n:1}
+];
+
+// Raw trades for log
+const TRADES=[
+{id:1,y:2025,dt:"Nov 5",s:"Completed",a:"Pats the Blount",as:"Tyjae Spears, Jordan Addison",b:"Spank City Rotisserie Chickens",bs:"A.J. Brown"},
+{id:2,y:2025,dt:"Oct 21",s:"Completed",a:"Tripods",as:"Zach Charbonnet",b:"BALLSACK",bs:"Luther Burden III"},
+{id:3,y:2025,dt:"Sep 25",s:"Completed",a:"Season is officially over",as:"Ladd McConkey",b:"Tripods",bs:"Tyler Warren, Terry McLaurin"},
+{id:4,y:2025,dt:"Sep 17",s:"Completed",a:"gibbs me dem TDs",as:"Darnell Mooney, Ja’Marr Chase",b:"BALLSACK",bs:"D’Andre Swift, Jaxon Smith-Njigba"},
+{id:5,y:2025,dt:"Sep 11",s:"Completed",a:"Pats the Blount",as:"Dalton Kincaid",b:"FredDeadRedemption",bs:"Brian Robinson"},
+{id:6,y:2024,dt:"Nov 19",s:"Completed",a:"Penis man",as:"Tucker Kraft, Tyrone Tracy Jr.",b:"Spank City Rotisserie Chickens",bs:"Travis Kelce"},
+{id:7,y:2024,dt:"Nov 7",s:"Completed",a:"Pats the Blount",as:"Hunter Henry, Ray Davis",b:"Kirko ‘swag n surf” cuzzo",bs:"Amari Cooper"},
+{id:8,y:2024,dt:"Nov 6",s:"Completed",a:"Spank City Rotisserie Chickens",as:"Tucker Kraft",b:"FredDeadRedemption",bs:"Raheem Mostert"},
+{id:9,y:2024,dt:"Oct 23",s:"Completed",a:"Pats the Blount",as:"Diontae Johnson, Jerry Jeudy, J.K. Dobbins",b:"Spank City Rotisserie Chickens",bs:"Kyle Pitts Sr., Breece Hall"},
+{id:10,y:2024,dt:"Oct 22",s:"Completed",a:"carson is a bitch",as:"D’Andre Swift, Christian Kirk",b:"FredDeadRedemption",bs:"Amon-Ra St. Brown"},
+{id:11,y:2023,dt:"Nov 30",s:"Completed",a:"Sherman Bearcats",as:"Curtis Samuel, Zack Moss",b:"It’s Joever.",bs:"Jared Goff"},
+{id:12,y:2023,dt:"Nov 15",s:"Completed",a:"SpankTown RotisserieChickens",as:"Trevor Lawrence, De’Von Achane",b:"Crob222",bs:"Jalen Hurts"},
+{id:13,y:2023,dt:"Nov 7",s:"Completed",a:"It’s Joever.",as:"Steelers",b:"Retired……",bs:"Hunter Henry"},
+{id:14,y:2023,dt:"Oct 13",s:"Completed",a:"It’s Joever.",as:"Bijan Robinson",b:"BALLSUCK",bs:"Amon-Ra St. Brown"},
+{id:15,y:2023,dt:"Oct 10",s:"Completed",a:"It’s Joever.",as:"Zack Moss",b:"SpankTown RotisserieChickens",bs:"Rashee Rice"},
+{id:16,y:2023,dt:"Oct 4",s:"Completed",a:"It’s Joever.",as:"Jerome Ford, George Pickens",b:"Ridders squad",bs:"Hollywood Brown"},
+{id:17,y:2023,dt:"Oct 3",s:"Completed",a:"The MERRY Meech Boners",as:"Elijah Mitchell",b:"SpankTown RotisserieChickens",bs:"Quentin Johnston"},
+{id:18,y:2023,dt:"Oct 3",s:"Completed",a:"It’s Joever.",as:"Keenan Allen, DeAndre Hopkins",b:"BALLSUCK",bs:"Bijan Robinson"},
+{id:19,y:2023,dt:"Oct 3",s:"Completed",a:"da STANK dawgs",as:"Darren Waller",b:"It’s Joever.",bs:"Curtis Samuel"},
+{id:20,y:2023,dt:"Sep 19",s:"Completed",a:"Retired……",as:"Kareem Hunt, Geno Smith, Alexander Mattison",b:"JJets Get Ready To Rumble",bs:"Adam Thielen, Kirk Cousins"},
+{id:21,y:2022,dt:"Dec 1",s:"Completed",a:"Texoma Medical Center",as:"Brandon Aiyuk, Hollywood Brown, Miles Sanders",b:"Rotisserie Chickens",bs:"Stefon Diggs"},
+{id:22,y:2022,dt:"Nov 14",s:"Vetoed",a:"Texoma Medical Center",as:"Nick Chubb, Jonathan Taylor, Jaylen Waddle, Josh Allen",b:"Sherman Bearcats",bs:"Romeo Doubs"},
+{id:23,y:2022,dt:"Oct 27",s:"Completed",a:"sadsack",as:"Hayden Hurst",b:"DK HAVE IT YOUR WAY",bs:"Joshua Palmer"},
+{id:24,y:2022,dt:"Oct 6",s:"Completed",a:"Sherman Bearcats",as:"J.K. Dobbins",b:"sadsack",bs:"Damien Harris, George Pickens"},
+{id:25,y:2022,dt:"Oct 5",s:"Completed",a:"Rotisserie Chickens",as:"Brandon Aiyuk, Nyheim Miller-Hines",b:"sadsack",bs:"Brian Robinson"},
+{id:26,y:2022,dt:"Oct 2",s:"Completed",a:"da stinky dawgs",as:"Jahan Dotson, Michael Carter",b:"Sherman Bearcats",bs:"Dawson Knox, Damien Harris"},
+{id:27,y:2022,dt:"Oct 2",s:"Completed",a:"Quan Solo",as:"Tyler Higbee",b:"Sherman Bearcats",bs:"Allen Lazard"},
+{id:28,y:2022,dt:"Sep 20",s:"Completed",a:"RAPERS",as:"Hunter Renfrow, David Montgomery",b:"Texoma Medical Center",bs:"Cordarrelle Patterson"},
+{id:29,y:2021,dt:"Dec 15",s:"Vetoed",a:"Alabama cousin fuckers",as:"Darrel Williams",b:"The Pawpaws",bs:"Michael Gallup"},
+{id:30,y:2021,dt:"Dec 14",s:"Completed",a:"baLLsack",as:"Rashod Bateman, J.D. McKissic",b:"Lil Pumps",bs:"Dallas Goedert"},
+{id:31,y:2021,dt:"Dec 11",s:"Vetoed",a:"What the BageLs",as:"CeeDee Lamb, Darrell Henderson Jr.",b:"#RIPBOZO",bs:"Devonta Freeman, Dontrell Hilliard"},
+{id:32,y:2021,dt:"Dec 6",s:"Completed",a:"Lil Pumps",as:"Rashod Bateman",b:"baLLsack",bs:"Taylor Heinicke"},
+{id:33,y:2021,dt:"Nov 19",s:"Completed",a:"Holiday  Shitapies",as:"Jaylen Waddle, DeVonta Smith, Rob Gronkowski",b:"HUNGRYMAN MEECH",bs:"A.J. Brown"},
+{id:34,y:2021,dt:"Nov 2",s:"Completed",a:"Alabama cousin fuckers",as:"Deebo Samuel, Leonard Fournette",b:"da resting dawgs",bs:"Robert Woods, Najee Harris"},
+{id:35,y:2021,dt:"Oct 21",s:"Completed",a:"Lil Pumps",as:"Amari Cooper, Corey Davis",b:"Rotisserie Chickens",bs:"Keenan Allen"},
+{id:36,y:2021,dt:"Oct 19",s:"Completed",a:"HUNGRYMAN MEECH",as:"Rob Gronkowski",b:"Dalt in the Wound",bs:"Dawson Knox"},
+{id:37,y:2021,dt:"Oct 19",s:"Completed",a:"Sherman Bearcats",as:"Darren Waller",b:"Lil Pumps",bs:"Zach Ertz, Chase Edmonds"},
+{id:38,y:2021,dt:"Oct 11",s:"Completed",a:"Rotisserie Chickens",as:"Joe Burrow",b:"Alabama cousin fuckers",bs:"Alex Collins"},
+{id:39,y:2021,dt:"Oct 8",s:"Completed",a:"#RIPBOZO",as:"A.J. Green",b:"The Pawpaws",bs:"Alexander Mattison"},
+{id:40,y:2021,dt:"Sep 29",s:"Vetoed",a:"baLLsack",as:"Royce Freeman, Darius Slayton",b:"The Pawpaws",bs:"Clyde Edwards-Helaire, Antonio Gibson"},
+{id:41,y:2021,dt:"Sep 28",s:"Completed",a:"Holiday  Shitapies",as:"Nyheim Miller-Hines",b:"Dalt in the Wound",bs:"Cole Beasley"},
+{id:42,y:2021,dt:"Sep 24",s:"Completed",a:"The Pawpaws",as:"Hollywood Brown",b:"Lil Pumps",bs:"Josh Jacobs"},
+{id:43,y:2021,dt:"Sep 21",s:"Completed",a:"The Pawpaws",as:"Lamar Jackson, Tyler Boyd, Henry Ruggs III",b:"HUNGRYMAN MEECH",bs:"Josh Allen, DeVonta Smith"},
+{id:44,y:2021,dt:"Sep 20",s:"Completed",a:"Holiday  Shitapies",as:"DeAndre Hopkins, Melvin Gordon III",b:"The Pawpaws",bs:"Dalvin Cook"},
+{id:45,y:2021,dt:"Sep 20",s:"Completed",a:"Holiday  Shitapies",as:"Tee Higgins, James White, Elijah Mitchell",b:"Rotisserie Chickens",bs:"Terry McLaurin, Mark Andrews"},
+{id:46,y:2021,dt:"Sep 13",s:"Vetoed",a:"baLLsack",as:"Emmanuel Sanders, Leonard Fournette, Colts",b:"da resting dawgs",bs:"Antonio Gibson, Calvin Ridley, SUSP Robbie Chosen"},
+{id:47,y:2021,dt:"Sep 13",s:"Completed",a:"Alabama cousin fuckers",as:"Noah Fant, Joe Burrow",b:"da resting dawgs",bs:"T.J. Hockenson"},
+{id:48,y:2021,dt:"Sep 12",s:"Completed",a:"Alabama cousin fuckers",as:"Aaron Rodgers",b:"Lil Pumps",bs:"Kyler Murray"},
+{id:49,y:2020,dt:"Dec 3",s:"Vetoed",a:"lil pumps",as:"J.D. McKissic, Adam Thielen",b:"The Pawpaws",bs:"Nick Chubb, Cooper Kupp"},
+{id:50,y:2020,dt:"Dec 3",s:"Vetoed",a:"lil pumps",as:"Keelan Cole Sr., J.D. McKissic",b:"The Pawpaws",bs:"Nick Chubb"},
+{id:51,y:2020,dt:"Dec 3",s:"Completed",a:"What the Bagels",as:"Latavius Murray, Evan Engram",b:"The Pawpaws",bs:"Noah Fant, David Johnson"},
+{id:52,y:2020,dt:"Dec 3",s:"Completed",a:"Eatapies",as:"DK Metcalf",b:"The Pawpaws",bs:"Adam Thielen, Josh Jacobs"},
+{id:53,y:2020,dt:"Dec 3",s:"Completed",a:"MEECH THE CHAMPION",as:"Darren Waller",b:"Eatapies",bs:"David Montgomery"},
+{id:54,y:2020,dt:"Nov 24",s:"Completed",a:"Rotisserie Chickens",as:"Robbie Chosen, Derrick Henry, Amari Cooper",b:"crob222",bs:"Diontae Johnson, Ezekiel Elliott, Kenyan Drake"},
+{id:55,y:2020,dt:"Nov 18",s:"Completed",a:"DADDY",as:"Myles Gaskin, Nyheim Miller-Hines",b:"lil pumps",bs:"Hollywood Brown, Jonathan Taylor"},
+{id:56,y:2020,dt:"Nov 18",s:"Vetoed",a:"lil pumps",as:"Brandin Cooks, Jerry Jeudy",b:"jake’s Team",bs:"Calvin Ridley"},
+{id:57,y:2020,dt:"Nov 18",s:"Completed",a:"Coach Porter’s Team",as:"Kalen Ballage",b:"jake’s Team",bs:"Jerry Jeudy"},
+{id:58,y:2020,dt:"Nov 17",s:"Completed",a:"What the Bagels",as:"Ronald Jones",b:"The Pawpaws",bs:"DJ Moore"},
+{id:59,y:2020,dt:"Nov 11",s:"Completed",a:"What the Bagels",as:"Mike Evans, Todd Gurley, JuJu Smith-Schuster",b:"jake’s Team",bs:"Alvin Kamara"},
+{id:60,y:2020,dt:"Nov 9",s:"Vetoed",a:"What the Bagels",as:"JuJu Smith-Schuster, Mike Evans, Todd Gurley",b:"jake’s Team",bs:"Jamaal Williams, Alvin Kamara"},
+{id:61,y:2020,dt:"Nov 9",s:"Vetoed",a:"What the Bagels",as:"Le’Veon Bell, Hayden Hurst, JuJu Smith-Schuster",b:"jake’s Team",bs:"Alvin Kamara"},
+{id:62,y:2020,dt:"Nov 9",s:"Completed",a:"What the Bagels",as:"Tom Brady",b:"The Pawpaws",bs:"Jerick McKinnon, Evan Engram"},
+{id:63,y:2020,dt:"Nov 7",s:"Completed",a:"jake’s Team",as:"Todd Gurley, Chase Claypool, Mike Evans",b:"The Pawpaws",bs:"Ronald Jones, DK Metcalf"},
+{id:64,y:2020,dt:"Nov 4",s:"Vetoed",a:"What the Bagels",as:"Dexter Williams",b:"Coach Porter’s Team",bs:"Alvin Kamara"},
+{id:65,y:2020,dt:"Nov 2",s:"Completed",a:"What the Bagels",as:"Jerick McKinnon, Sterling Shepard, DJ Moore",b:"Rotisserie Chickens",bs:"James Conner, Will Fuller V"},
+{id:66,y:2020,dt:"Nov 2",s:"Completed",a:"MEECH THE CHAMPION",as:"Lamar Jackson, Mike Davis",b:"Coach Porter’s Team",bs:"Zack Moss, Curtis Samuel, Brandon Aiyuk"},
+{id:67,y:2020,dt:"Nov 2",s:"Completed",a:"Sherman Bearcats",as:"Stefon Diggs",b:"el cobrobro",bs:"Kareem Hunt"},
+{id:68,y:2020,dt:"Nov 1",s:"Vetoed",a:"What the Bagels",as:"Keelan Cole Sr., Tyler Boyd",b:"Sherman Bearcats",bs:"Alvin Kamara"},
+{id:69,y:2020,dt:"Oct 28",s:"Completed",a:"MEECH THE CHAMPION",as:"Rex Burkhead, Tyreek Hill",b:"lil pumps",bs:"Nelson Agholor, Myles Gaskin"},
+{id:70,y:2020,dt:"Oct 28",s:"Completed",a:"The Pawpaws",as:"J.K. Dobbins, Mike Evans",b:"MEECH THE CHAMPION",bs:"Nelson Agholor, Myles Gaskin"},
+{id:71,y:2020,dt:"Oct 26",s:"Completed",a:"The Pawpaws",as:"Leonard Fournette, Chase Claypool",b:"Eatapies",bs:"Cole Beasley"},
+{id:72,y:2020,dt:"Oct 20",s:"Completed",a:"The Pawpaws",as:"Cole Beasley, George Kittle",b:"MEECH THE CHAMPION",bs:"David Montgomery, Jimmy Graham, CeeDee Lamb"},
+{id:73,y:2020,dt:"Oct 20",s:"Completed",a:"DADDY",as:"Chris Godwin Jr.",b:"crob222",bs:"Jamison Crowder, Clyde Edwards-Helaire"},
+{id:74,y:2020,dt:"Oct 15",s:"Completed",a:"The Pawpaws",as:"Aaron Rodgers",b:"DADDY",bs:"Terry McLaurin, Chris Carson"},
+{id:75,y:2020,dt:"Oct 14",s:"Completed",a:"DADDY",as:"Jamison Crowder, James Robinson",b:"The Pawpaws",bs:"Myles Gaskin, Odell Beckham Jr."},
+{id:76,y:2020,dt:"Oct 11",s:"Vetoed",a:"lil pumps",as:"Latavius Murray, Jimmy Graham",b:"The Pawpaws",bs:"Calvin Ridley, Tyreek Hill"},
+{id:77,y:2020,dt:"Oct 8",s:"Completed",a:"The Pawpaws",as:"Jimmy Graham, David Montgomery",b:"Rotisserie Chickens",bs:"Hunter Henry, Julio Jones"},
+{id:78,y:2020,dt:"Oct 6",s:"Completed",a:"The Pawpaws",as:"Todd Gurley, Dalton Schultz",b:"Coach Porter’s Team",bs:"Jonnu Smith, Mike Davis"},
+{id:79,y:2020,dt:"Oct 6",s:"Completed",a:"Coach Porter’s Team",as:"Todd Gurley",b:"The Pawpaws",bs:"CeeDee Lamb"},
+{id:80,y:2020,dt:"Oct 6",s:"Completed",a:"The Pawpaws",as:"Latavius Murray, Tom Brady",b:"Sherman Bearcats",bs:"Ben Roethlisberger, Kareem Hunt"},
+{id:81,y:2020,dt:"Sep 24",s:"Completed",a:"Rotisserie Chickens",as:"Cam Newton",b:"Coach Porter’s Team",bs:"Dion Lewis, Tre’Quan Smith"},
+{id:82,y:2020,dt:"Sep 22",s:"Completed",a:"el cobrobro",as:"Josh Allen",b:"The Pawpaws",bs:"Baker Mayfield, Terry McLaurin"},
+{id:83,y:2020,dt:"Sep 18",s:"Completed",a:"MEECH THE CHAMPION",as:"Marvin Jones Jr., Austin Ekeler",b:"What the Bagels",bs:"Will Fuller V"},
+{id:84,y:2019,dt:"Nov 30",s:"Completed",a:"jake’s Team",as:"Jamaal Williams",b:"Rotisserie Chickens",bs:"Jared Cook"},
+{id:85,y:2019,dt:"Nov 28",s:"Completed",a:"MEECHY justice",as:"Derrius Guice",b:"Coach Porter’s Team",bs:"Benny Snell Jr."},
+{id:86,y:2019,dt:"Nov 26",s:"Completed",a:"crob222",as:"James White, Christian Kirk",b:"el cobrobro",bs:"Phillip Lindsay, Larry Fitzgerald"},
+{id:87,y:2019,dt:"Nov 26",s:"Completed",a:"MEECHY justice",as:"Aaron Jones Sr.",b:"Eatapies",bs:"Calvin Ridley, Mark Ingram II"},
+{id:88,y:2019,dt:"Nov 26",s:"Completed",a:"What the Bagels",as:"Kyle Rudolph, Kirk Cousins",b:"MEECHY justice",bs:"Stefon Diggs"},
+{id:89,y:2019,dt:"Nov 26",s:"Completed",a:"MEECHY justice",as:"Josh Jacobs",b:"Sherman Bearcats",bs:"Kenyan Drake, Robbie Chosen"},
+{id:90,y:2019,dt:"Oct 22",s:"Completed",a:"What the Bagels",as:"Jamison Crowder",b:"Sherman Bearcats",bs:"Tevin Coleman"},
+{id:91,y:2019,dt:"Oct 15",s:"Completed",a:"lil pumps",as:"Golden Tate",b:"Eatapies",bs:"Mark Andrews"},
+{id:92,y:2019,dt:"Oct 15",s:"Completed",a:"Kyles Friend",as:"Christian McCaffrey, Sterling Shepard",b:"jake’s Team",bs:"Mike Evans, Alvin Kamara"},
+{id:93,y:2019,dt:"Oct 14",s:"Completed",a:"Sherman Bearcats",as:"Josh Gordon",b:"Eatapies",bs:"Golden Tate"},
+{id:94,y:2019,dt:"Oct 14",s:"Completed",a:"Eatapies",as:"Brandin Cooks, Kyler Murray",b:"Rotisserie Chickens",bs:"Julio Jones"},
+{id:95,y:2019,dt:"Oct 14",s:"Completed",a:"Sherman Bearcats",as:"Tom Brady",b:"Coach Porter’s Team",bs:"Jacoby Brissett, Tarik Cohen"},
+{id:96,y:2019,dt:"Sep 21",s:"Completed",a:"Suck me",as:"Duke Johnson, Jimmy Garoppolo",b:"jake’s Team",bs:"Kerryon Johnson"},
+{id:97,y:2019,dt:"Sep 16",s:"Completed",a:"Rotisserie Chickens",as:"Joe Mixon, Marvin Jones Jr.",b:"Eatapies",bs:"Matt Breida, Josh Gordon"},
+{id:98,y:2019,dt:"Sep 12",s:"Completed",a:"What the Bagels",as:"Hollywood Brown",b:"Rotisserie Chickens",bs:"Matt Breida"},
+{id:99,y:2019,dt:"Sep 12",s:"Completed",a:"lil pumps",as:"Mike Williams",b:"Sherman Bearcats",bs:"Bears"},
+{id:100,y:2019,dt:"Sep 5",s:"Completed",a:"lil pumps",as:"Justin Jackson",b:"Rotisserie Chickens",bs:"Lamar Jackson"},
+{id:101,y:2018,dt:"Dec 9",s:"Vetoed",a:"jake’s Team",as:"George Kittle",b:"Brendan’s Team",bs:"Taylor Gabriel"},
+{id:102,y:2018,dt:"Dec 3",s:"Vetoed",a:"what the croissants",as:"Isaiah Crowell, Theo Riddick",b:"Sherman Bearcats",bs:"Dion Lewis"},
+{id:103,y:2018,dt:"Dec 3",s:"Vetoed",a:"what the croissants",as:"Jordan Howard, Bruce Ellington",b:"Sherman Bearcats",bs:"Dion Lewis"},
+{id:104,y:2018,dt:"Dec 2",s:"Vetoed",a:"What the Bagels",as:"Corey Davis, Melvin Gordon III, Austin Ekeler",b:"jake’s Team",bs:"Alvin Kamara, Mike Evans"},
+{id:105,y:2018,dt:"Dec 2",s:"Vetoed",a:"What the Bagels",as:"Taylor Gabriel, Kenneth Barber, Corey Davis",b:"jake’s Team",bs:"Mike Evans"},
+{id:106,y:2018,dt:"Dec 2",s:"Vetoed",a:"What the Bagels",as:"Corey Davis, Kenneth Barber, Taylor Gabriel",b:"jake’s Team",bs:"Mike Evans"},
+{id:107,y:2018,dt:"Nov 30",s:"Completed",a:"Sherman Bearcats",as:"Marlon Mack",b:"What the Bagels",bs:"DJ Moore"},
+{id:108,y:2018,dt:"Nov 30",s:"Completed",a:"jake’s Team",as:"Justin Jackson",b:"Rotisserie Chickens",bs:"Mike Williams"},
+{id:109,y:2018,dt:"Nov 26",s:"Completed",a:"What the Biscuits",as:"Christian Kirk",b:"crob222",bs:"Marquez Valdes-Scantling"},
+{id:110,y:2018,dt:"Nov 24",s:"Completed",a:"What the Bagels",as:"Dede Westbrook, David Njoku",b:"What the Biscuits",bs:"Demaryius Thomas, Kenny Stills"},
+{id:111,y:2018,dt:"Nov 20",s:"Completed",a:"What the Bagels",as:"Marlon Mack, Mohamed Sanu",b:"Dee’s Team",bs:"Rob Gronkowski"},
+{id:112,y:2018,dt:"Nov 14",s:"Completed",a:"BALL SACK",as:"Allen Robinson",b:"Rotisserie Chickens",bs:"Kerryon Johnson"},
+{id:113,y:2018,dt:"Nov 14",s:"Completed",a:"Sherman Bearcats",as:"Jordan Howard",b:"Rotisserie Chickens",bs:"O.J. Howard, Latavius Murray"},
+{id:114,y:2018,dt:"Oct 24",s:"Completed",a:"Rotisserie Chickens",as:"Marvin Jones Jr., Kyle Rudolph",b:"What the Biscuits",bs:"Randall Cobb, Trey Burton"},
+{id:115,y:2018,dt:"Oct 23",s:"Completed",a:"What the Bagels",as:"Cole Beasley, Wendell Smallwood, Larry Fitzgerald",b:"Sherman Bearcats",bs:"Nelson Agholor, Sammy Watkins"},
+{id:116,y:2018,dt:"Oct 18",s:"Completed",a:"Rotisserie Chickens",as:"Ito Smith",b:"jake’s Team",bs:"Austin Ekeler"},
+{id:117,y:2018,dt:"Oct 13",s:"Completed",a:"What the Biscuits",as:"Keke Coutee",b:"Rotisserie Chickens",bs:"Jordan Howard"},
+{id:118,y:2018,dt:"Oct 10",s:"Completed",a:"crob222",as:"John Brown, Christian Kirk",b:"Sherman Bearcats",bs:"Marshawn Lynch"},
+{id:119,y:2018,dt:"Oct 9",s:"Completed",a:"What the Biscuits",as:"Brandin Cooks, Carlos Hyde",b:"jake’s Team",bs:"Julio Jones"},
+{id:120,y:2018,dt:"Oct 9",s:"Completed",a:"what the croissants",as:"James Conner",b:"Sherman Bearcats",bs:"Kenny Golladay"},
+{id:121,y:2018,dt:"Oct 8",s:"Vetoed",a:"Brendan’s Team",as:"Corey Davis, Mike Williams, Wendell Smallwood",b:"jake’s Team",bs:"Keenan Allen, James White"},
+{id:122,y:2018,dt:"Oct 1",s:"Completed",a:"Brendan’s Team",as:"Matt Breida",b:"Rotisserie Chickens",bs:"Dalvin Cook"},
+{id:123,y:2018,dt:"Sep 25",s:"Completed",a:"Brendan’s Team",as:"Alex Collins, George Kittle",b:"Sherman Bearcats",bs:"Marquise Goodwin, Larry Fitzgerald"},
+{id:124,y:2018,dt:"Sep 25",s:"Completed",a:"Rotisserie Chickens",as:"Chris Godwin Jr., Ben Roethlisberger",b:"What the Bagels",bs:"Andrew Luck, Devin Funchess"},
+{id:125,y:2018,dt:"Sep 23",s:"Completed",a:"crob222",as:"Cooper Kupp, Aaron Rodgers",b:"Dee’s Team",bs:"Tyreek Hill, Chris Thompson"},
+{id:126,y:2018,dt:"Sep 21",s:"Vetoed",a:"Dee’s Team",as:"Tyreek Hill, Chris Thompson",b:"crob222",bs:"Cooper Kupp, Aaron Rodgers"},
+{id:127,y:2018,dt:"Sep 20",s:"Completed",a:"what the croissants",as:"Sterling Shepard",b:"Dee’s Team",bs:"Tevin Coleman"},
+{id:128,y:2018,dt:"Sep 7",s:"Completed",a:"Rotisserie Chickens",as:"Antonio Brown",b:"Brendan’s Team",bs:"Golden Tate, Dalvin Cook"},
+{id:129,y:2018,dt:"Sep 2",s:"Completed",a:"crob222",as:"Jimmy Graham, Chris Thompson",b:"Rotisserie Chickens",bs:"Amari Cooper, Trey Burton"},
+{id:130,y:2018,dt:"Aug 13",s:"Completed",a:"jake’s Team",as:"Jay Ajayi, Corey Davis",b:"Brendan’s Team",bs:"Alshon Jeffery"},
+{id:131,y:2018,dt:"Aug 13",s:"Completed",a:"Brendan’s Team",as:"Corey Davis, Jay Ajayi",b:"jake’s Team",bs:"Alshon Jeffery"},
+{id:132,y:2018,dt:"Aug 12",s:"Completed",a:"jake’s Team",as:"Austin Seferian-Jenkins",b:"Sherman Bearcats",bs:"Matt Bryant"},
+{id:133,y:2017,dt:"Dec 15",s:"Completed",a:"Ball Sack",as:"Alex Smith",b:"brendan’s Team",bs:"Corey Davis"},
+{id:134,y:2017,dt:"Dec 15",s:"Vetoed",a:"Ball Sack",as:"Cooper Kupp, Alvin Kamara, Alex Smith",b:"brendan’s Team",bs:"Corey Davis, Tevin Coleman"},
+{id:135,y:2017,dt:"Dec 15",s:"Vetoed",a:"Ball Sack",as:"Alvin Kamara",b:"brendan’s Team",bs:"Devonta Freeman, Tevin Coleman"},
+{id:136,y:2017,dt:"Dec 15",s:"Vetoed",a:"Ball Sack",as:"Alvin Kamara, Cooper Kupp",b:"brendan’s Team",bs:"JuJu Smith-Schuster, Tevin Coleman"},
+{id:137,y:2017,dt:"Dec 14",s:"Completed",a:"Nolan’s Swag Team",as:"Todd Gurley",b:"What the Bagels",bs:"Chris Ivory, James White, Emmanuel Sanders"},
+{id:138,y:2017,dt:"Dec 10",s:"Vetoed",a:"Ball Sack",as:"Philip Rivers",b:"Jake and Bake",bs:"Tevin Coleman"},
+{id:139,y:2017,dt:"Dec 10",s:"Vetoed",a:"brendan’s Team",as:"Mike Davis",b:"Rotisserie Chickens",bs:"Samaje Perine"},
+{id:140,y:2017,dt:"Dec 10",s:"Completed",a:"Big D",as:"Aaron Rodgers",b:"Rotisserie Chickens",bs:"Josh Gordon"},
+{id:141,y:2017,dt:"Dec 9",s:"Vetoed",a:"What the Bagels",as:"Josh Gordon",b:"Big D",bs:"Jordy Nelson"},
+{id:142,y:2017,dt:"Dec 5",s:"Completed",a:"What The Biscuits",as:"Dion Lewis",b:"brendan’s Team",bs:"Aaron Jones Sr."},
+{id:143,y:2017,dt:"Dec 3",s:"Completed",a:"What The Biscuits",as:"Cameron Brate",b:"Jake and Bake",bs:"Marquise Goodwin"},
+{id:144,y:2017,dt:"Dec 3",s:"Vetoed",a:"brendan’s Team",as:"Dez Bryant, Christian McCaffrey",b:"Jake and Bake",bs:"Corey Coleman, Zay Jones"},
+{id:145,y:2017,dt:"Dec 3",s:"Vetoed",a:"Jake and Bake",as:"Corey Coleman, Dion Lewis",b:"brendan’s Team",bs:"Kareem Hunt, Dez Bryant, Christian McCaffrey, Michael Thomas"},
+{id:146,y:2017,dt:"Dec 3",s:"Completed",a:"Rotisserie Chickens",as:"Ricky Seals-Jones",b:"Jake and Bake",bs:"Danny Woodhead"},
+{id:147,y:2017,dt:"Nov 30",s:"Completed",a:"Muy interasante",as:"Ezekiel Elliott",b:"Rotisserie Chickens",bs:"Kenyan Drake"},
+{id:148,y:2017,dt:"Nov 28",s:"Completed",a:"Ball Sack",as:"Tevin Coleman, Sterling Shepard",b:"Jake and Bake",bs:"Kareem Hunt"},
+{id:149,y:2017,dt:"Nov 28",s:"Completed",a:"Rotisserie Chickens",as:"Leonard Fournette, Jamison Crowder",b:"Jake and Bake",bs:"Michael Thomas"},
+{id:150,y:2017,dt:"Nov 23",s:"Completed",a:"What The Biscuits",as:"Latavius Murray",b:"Jake and Bake",bs:"Jared Cook"},
+{id:151,y:2017,dt:"Nov 20",s:"Completed",a:"What The Croissants",as:"Josh McCown",b:"Ball Sack",bs:"Austin Seferian-Jenkins"},
+{id:152,y:2017,dt:"Nov 14",s:"Completed",a:"brendan’s Team",as:"Kelvin Benjamin",b:"Jake and Bake",bs:"Case Keenum"},
+{id:153,y:2017,dt:"Nov 14",s:"Completed",a:"What the Bagels",as:"Jordy Nelson",b:"Big D",bs:"Derek Carr"},
+{id:154,y:2017,dt:"Nov 8",s:"Completed",a:"Ball Sack",as:"Josh McCown",b:"What the Bagels",bs:"Derek Carr"},
+{id:155,y:2017,dt:"Nov 8",s:"Completed",a:"What The Biscuits",as:"Demaryius Thomas, Golden Tate, Melvin Gordon III",b:"Hotshooter1500",bs:"DeVante Parker, Keenan Allen, Carlos Hyde"},
+{id:156,y:2017,dt:"Nov 4",s:"Completed",a:"brendan’s Team",as:"Alex Collins",b:"Jake and Bake",bs:"Jamison Crowder"},
+{id:157,y:2017,dt:"Nov 3",s:"Completed",a:"Muy interasante",as:"Kirk Cousins",b:"Ball Sack",bs:"Allen Hurns"},
+{id:158,y:2017,dt:"Nov 2",s:"Completed",a:"Jake and Bake",as:"Tevin Coleman",b:"Muy interasante",bs:"Jimmy Garoppolo"},
+{id:159,y:2017,dt:"Nov 1",s:"Completed",a:"Rotisserie Chickens",as:"Ameer Abdullah",b:"Hotshooter1500",bs:"Marshawn Lynch"},
+{id:160,y:2017,dt:"Nov 1",s:"Completed",a:"Bob Squad",as:"Jordan Howard",b:"Big D",bs:"Doug Baldwin"},
+{id:161,y:2017,dt:"Oct 26",s:"Completed",a:"Nolan’s Swag Team",as:"Chris Ivory, A.J. Green",b:"Rotisserie Chickens",bs:"Russell Wilson, Julio Jones"},
+{id:162,y:2017,dt:"Oct 24",s:"Completed",a:"Rotisserie Chickens",as:"Joe Mixon",b:"Bob Squad",bs:"Bilal Powell"},
+{id:163,y:2017,dt:"Oct 24",s:"Completed",a:"Big D",as:"LeSean McCoy",b:"What The Biscuits",bs:"Carlos Hyde, Aaron Jones Sr."},
+{id:164,y:2017,dt:"Oct 24",s:"Completed",a:"What The Biscuits",as:"Keenan Allen",b:"Rotisserie Chickens",bs:"Michael Thomas, Rob Kelley"},
+{id:165,y:2017,dt:"Oct 20",s:"Completed",a:"What the Bagels",as:"Randall Cobb",b:"brendan’s Team",bs:"Tyler Lockett"},
+{id:166,y:2017,dt:"Oct 20",s:"Completed",a:"What the Bagels",as:"Todd Gurley",b:"brendan’s Team",bs:"Jeremy Maclin, Cooper Kupp, Alvin Kamara"},
+{id:167,y:2017,dt:"Oct 19",s:"Completed",a:"brendan’s Team",as:"Todd Gurley",b:"Jake and Bake",bs:"Sterling Shepard, Christian McCaffrey, Kelvin Benjamin"},
+{id:168,y:2017,dt:"Oct 19",s:"Completed",a:"brendan’s Team",as:"Christian McCaffrey, Sterling Shepard, Kelvin Benjamin",b:"Jake and Bake",bs:"Todd Gurley"},
+{id:169,y:2017,dt:"Oct 19",s:"Vetoed",a:"What the Bagels",as:"Randall Cobb, Todd Gurley",b:"brendan’s Team",bs:"Cooper Kupp, Alvin Kamara"},
+{id:170,y:2017,dt:"Oct 19",s:"Completed",a:"Big D",as:"Carlos Hyde, Adam Thielen",b:"What the Bagels",bs:"Alvin Kamara, Cooper Kupp, Adrian Peterson"},
+{id:171,y:2017,dt:"Oct 17",s:"Completed",a:"Big D",as:"Jordy Nelson",b:"Rotisserie Chickens",bs:"David Johnson"},
+{id:172,y:2017,dt:"Oct 17",s:"Completed",a:"Rotisserie Chickens",as:"Marcus Mariota",b:"brendan’s Team",bs:"Terrelle Pryor Sr."},
+{id:173,y:2017,dt:"Oct 15",s:"Completed",a:"Jake and Bake",as:"Philip Rivers",b:"What The Croissants",bs:"Isaiah Crowell"},
+{id:174,y:2017,dt:"Oct 15",s:"Vetoed",a:"Ball Sack",as:"Michael Thomas, Rob Kelley",b:"What The Biscuits",bs:"Derek Carr, John Brown, Doug Martin"},
+{id:175,y:2017,dt:"Oct 10",s:"Completed",a:"Jake and Bake",as:"Isaiah Crowell",b:"Rotisserie Chickens",bs:"Amari Cooper"},
+{id:176,y:2017,dt:"Oct 3",s:"Completed",a:"Ball Sack",as:"Devonta Freeman",b:"What the Bagels",bs:"Charles Clay, Martavis Bryant, Carlos Hyde"},
+{id:177,y:2017,dt:"Sep 27",s:"Completed",a:"What the Bagels",as:"Kyle Rudolph, Brandon Marshall",b:"Hotshooter1500",bs:"Jesse James"},
+{id:178,y:2017,dt:"Sep 27",s:"Completed",a:"Jake and Bake",as:"Martellus Bennett, Amari Cooper",b:"Muy interasante",bs:"Theo Riddick, Jimmy Graham, Mark Ingram II"},
+{id:179,y:2017,dt:"Sep 27",s:"Completed",a:"Nolan’s Swag Team",as:"Kelvin Benjamin, Emmanuel Sanders, Tarik Cohen",b:"Big D",bs:"Antonio Brown, Jordan Howard"},
+{id:180,y:2017,dt:"Sep 27",s:"Completed",a:"Rotisserie Chickens",as:"Jordan Reed",b:"Jake and Bake",bs:"Willie Snead IV"},
+{id:181,y:2017,dt:"Sep 27",s:"Completed",a:"Jake and Bake",as:"Leonard Fournette, Jimmy Graham",b:"Big D",bs:"Odell Beckham Jr."},
+{id:182,y:2017,dt:"Sep 26",s:"Completed",a:"What the Bagels",as:"Evan Engram",b:"Rotisserie Chickens",bs:"Willie Snead IV"},
+{id:183,y:2017,dt:"Sep 26",s:"Completed",a:"What the Bagels",as:"Tom Brady",b:"Jake and Bake",bs:"Cam Newton, Christian McCaffrey, Jordan Reed"},
+{id:184,y:2017,dt:"Sep 26",s:"Completed",a:"Nolan’s Swag Team",as:"Julio Jones",b:"Rotisserie Chickens",bs:"Keenan Allen, Dalvin Cook"},
+{id:185,y:2017,dt:"Sep 26",s:"Completed",a:"What The Croissants",as:"Jameis Winston, Davante Adams",b:"Rotisserie Chickens",bs:"Jordy Nelson"},
+{id:186,y:2017,dt:"Sep 26",s:"Completed",a:"Ball Sack",as:"Jamison Crowder",b:"Rotisserie Chickens",bs:"Terrelle Pryor Sr."},
+{id:187,y:2017,dt:"Sep 25",s:"Completed",a:"Big D",as:"Cooper Kupp, Sam Bradford, Alvin Kamara",b:"Rotisserie Chickens",bs:"Andrew Luck"},
+{id:188,y:2017,dt:"Sep 20",s:"Completed",a:"What the Bagels",as:"Adam Thielen, Christian McCaffrey",b:"Ball Sack",bs:"Terrelle Pryor Sr., Carlos Hyde"},
+{id:189,y:2017,dt:"Sep 19",s:"Completed",a:"What The Croissants",as:"Javorius Allen, T.Y. Hilton",b:"Rotisserie Chickens",bs:"A.J. Green"},
+{id:190,y:2017,dt:"Sep 12",s:"Completed",a:"Nolan’s Swag Team",as:"Rob Gronkowski",b:"brendan’s Team",bs:"Mike Gillislee, Austin Hooper"},
+{id:191,y:2016,dt:"Nov 1",s:"Completed",a:"Rotisserie Chickens",as:"Chris Thompson",b:"Jake and Bake",bs:"Cameron Meredith"},
+{id:192,y:2016,dt:"Oct 29",s:"Completed",a:"Rotisserie Chickens",as:"Jameis Winston",b:"Jake and Bake",bs:"Cole Beasley"},
+{id:193,y:2016,dt:"Oct 17",s:"Completed",a:"Rotisserie Turkeys",as:"Tyrell Williams",b:"Rotisserie Chickens",bs:"Kyle Rudolph"},
+{id:194,y:2016,dt:"Oct 16",s:"Completed",a:"Rotisserie Turkeys",as:"Matt Forte",b:"Ball Sack",bs:"Zach Miller"},
+{id:195,y:2016,dt:"Oct 13",s:"Completed",a:"Ball Sack",as:"James White",b:"Jake and Bake",bs:"Michael Thomas"},
+{id:196,y:2016,dt:"Oct 12",s:"Completed",a:"Muy interasante",as:"DeVante Parker",b:"Rotisserie Chickens",bs:"Zach Ertz"},
+{id:197,y:2016,dt:"Oct 12",s:"Completed",a:"Rotisserie Turkeys",as:"Carson Palmer",b:"Rotisserie Chickens",bs:"Terrelle Pryor Sr."},
+{id:198,y:2016,dt:"Oct 7",s:"Completed",a:"Rotisserie Chickens",as:"Dak Prescott",b:"Jake and Bake",bs:"Delanie Walker"},
+{id:199,y:2016,dt:"Oct 6",s:"Vetoed",a:"Jake and Bake",as:"Zach Ertz, Theo Riddick",b:"Muy interasante",bs:"Dez Bryant"},
+{id:200,y:2016,dt:"Oct 6",s:"Completed",a:"Muy interasante",as:"Theo Riddick",b:"Rotisserie Chickens",bs:"Blake Bortles"},
+{id:201,y:2016,dt:"Sep 23",s:"Completed",a:"What The Biscuits",as:"Tyler Lockett",b:"Rotisserie Chickens",bs:"Eddie Lacy"},
+{id:202,y:2016,dt:"Sep 21",s:"Completed",a:"Jake and Bake",as:"Jeremy Langford",b:"Rotisserie Chickens",bs:"Jonathan Stewart"},
+{id:203,y:2016,dt:"Sep 13",s:"Vetoed",a:"Zeke Virus",as:"Markus Wheaton, Sammy Watkins, Arian Foster",b:"Bob Squad",bs:"Kelvin Benjamin"},
+{id:204,y:2016,dt:"Sep 13",s:"Completed",a:"What The Croissants",as:"Eric Ebron",b:"Rotisserie Chickens",bs:"Jarvis Landry"},
+{id:205,y:2016,dt:"Sep 13",s:"Completed",a:"Jake and Bake",as:"Dwayne Allen",b:"Muy interasante",bs:"Julian Edelman"},
+{id:206,y:2016,dt:"Sep 8",s:"Completed",a:"Iwontbelastthistime",as:"John Brown, Latavius Murray",b:"Zeke Virus",bs:"Todd Gurley, Terrance Williams"},
+{id:207,y:2015,dt:"Nov 3",s:"Completed",a:"Rotisserie Chickens",as:"Doug Martin",b:"The Jelly Donuts",bs:"Mike Evans"},
+{id:208,y:2015,dt:"Nov 3",s:"Completed",a:"Cody’s Team",as:"Eric Decker",b:"Hugo",bs:"Larry Fitzgerald"},
+{id:209,y:2015,dt:"Sep 22",s:"Completed",a:"Hugo",as:"Antonio Gates, Darren Sproles",b:"Muy interasante",bs:"Devonta Freeman"},
+{id:210,y:2015,dt:"Sep 16",s:"Vetoed",a:"Bob Squad",as:"Joique Bell, Antonio Gates",b:"Muy interasante",bs:"Danny Woodhead"},
+{id:211,y:2015,dt:"Aug 18",s:"Completed",a:"J. J. SWATT Team",as:"Davante Adams",b:"your mom",bs:"Joe Flacco"},
+{id:212,y:2015,dt:"Aug 17",s:"Completed",a:"Muy interasante",as:"Jordan Matthews, Jordan Reed, Matt Forte",b:"MoMo’s Maple Bacon",bs:"LeSean McCoy, Dez Bryant"},
+{id:213,y:2015,dt:"Aug 16",s:"Completed",a:"The Jelly Donuts",as:"Doug Martin",b:"MoMo’s Maple Bacon",bs:"Jordan Matthews"},
+{id:214,y:2015,dt:"Aug 16",s:"Completed",a:"your mom",as:"Davante Adams, Eddie Lacy",b:"MoMo’s Maple Bacon",bs:"Matt Forte"},
+{id:215,y:2015,dt:"Aug 16",s:"Completed",a:"Bob Squad",as:"Percy Harvin, Tyler Eifert",b:"Muy interasante",bs:"Greg Olsen"},
+];
+
+// ===================== NAV =====================
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const ids=['home','analytics','scoring','trades'];
+  document.querySelectorAll('.tnav-btn')[ids.indexOf(id)].classList.add('active');
+}
+function showSub(page,sub){
+  document.querySelectorAll(`#page-${page} .subtab`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll(`#page-${page} .snav-btn`).forEach(b=>b.classList.remove('active'));
+  document.getElementById(`${page}-${sub}`).classList.add('active');
+  const btns=document.querySelectorAll(`#page-${page} .snav-btn`);
+  const subs={analytics:['standings','luck','expected','h2h','profile'],scoring:['thresholds','boombust','streaks','splits','margins','leaguewk'],trades:['log','teams','players','byyear','positions']};
+  const idx=subs[page].indexOf(sub);
+  if(idx>=0) btns[idx].classList.add('active');
+}
+function sgn(v,d=1){return(v>=0?'+':'')+v.toFixed(d)}
+function cls(v){return v>0?'up':'dn'}
+
+// ===================== HOME CHARTS =====================
+new Chart(document.getElementById('cTradesByYear'),{type:'bar',data:{labels:BY_YEAR.map(x=>x.y),datasets:[{label:'Completed',data:BY_YEAR.map(x=>x.comp),backgroundColor:'#378ADD99',borderRadius:3},{label:'Vetoed',data:BY_YEAR.map(x=>x.vet),backgroundColor:'#E24B4A88',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+new Chart(document.getElementById('cLeagueTrend'),{type:'line',data:{labels:Object.keys(LG_AVG),datasets:[{data:Object.values(LG_AVG),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:'#378ADD'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:115}}}});
+
+// ===================== ANALYTICS =====================
+function buildStandings(){
+  const sorted=MANAGERS.map(m=>({m,...CAREER[m],wp:CAREER[m].w/(CAREER[m].w+CAREER[m].l)})).sort((a,b)=>b.wp-a.wp);
+  document.getElementById('standingsTbl').innerHTML=sorted.map((s,i)=>`<tr>
+    <td>${i+1}</td><td><strong>${s.m}</strong></td><td class="r">${s.seasons}</td><td class="r">${s.w}</td><td class="r">${s.l}</td>
+    <td class="r">${(s.wp*100).toFixed(1)}%</td><td class="r">${s.ppg.toFixed(1)}</td><td class="r">${s.ppga.toFixed(1)}</td>
+    <td class="r">${s.titles?`<span class="badge bc">${s.titles}</span>`:0}</td><td class="r">${s.finals}</td><td class="r">${s.top3}</td>
+    <td class="r ${cls(s.pyth)}">${sgn(s.pyth)}</td><td class="r ${cls(s.luck)}">${sgn(s.luck)}</td>
+  </tr>`).join('');
+  new Chart(document.getElementById('cTitles'),{type:'bar',data:{labels:MANAGERS,datasets:[{data:MANAGERS.map(m=>CAREER[m].titles),backgroundColor:MANAGERS.map(m=>COLORS[m]+'cc'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+  new Chart(document.getElementById('cWinPct'),{type:'bar',data:{labels:MANAGERS,datasets:[{data:MANAGERS.map(m=>+(CAREER[m].w/(CAREER[m].w+CAREER[m].l)*100).toFixed(1)),backgroundColor:MANAGERS.map(m=>COLORS[m]+'cc'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:30,ticks:{callback:v=>v+'%'}}}}});
+}
+function buildLuck(){
+  const ps=MANAGERS.slice().sort((a,b)=>CAREER[b].pyth-CAREER[a].pyth);
+  document.getElementById('pythTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Act W</th><th class="r">Pyth W</th><th class="r">Delta</th></tr></thead><tbody>`+ps.map(m=>`<tr><td>${m}</td><td class="r">${CAREER[m].w}</td><td class="r">${(CAREER[m].w-CAREER[m].pyth).toFixed(1)}</td><td class="r ${cls(CAREER[m].pyth)}">${sgn(CAREER[m].pyth)}</td></tr>`).join('')+'</tbody>';
+  const ls=MANAGERS.slice().sort((a,b)=>CAREER[b].luck-CAREER[a].luck);
+  document.getElementById('luckTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Act W</th><th class="r">Exp W</th><th class="r">Delta</th></tr></thead><tbody>`+ls.map(m=>`<tr><td>${m}</td><td class="r">${LUCK_ACT[m]}</td><td class="r">${LUCK_EXP[m].toFixed(1)}</td><td class="r ${cls(CAREER[m].luck)}">${sgn(CAREER[m].luck)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('luckyTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Year</th><th class="r">Act W</th><th class="r">Exp W</th><th class="r">Delta</th><th class="r">Finish</th></tr></thead><tbody>`+LUCKY_SEASONS.map(x=>`<tr><td>${x.n}</td><td class="r">${x.y}</td><td class="r">${x.act}</td><td class="r">${x.exp}</td><td class="r up">+${x.delta}</td><td class="r">${x.f}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('unluckyTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Year</th><th class="r">Act W</th><th class="r">Exp W</th><th class="r">Delta</th><th class="r">Finish</th></tr></thead><tbody>`+UNLUCKY_SEASONS.map(x=>`<tr><td>${x.n}</td><td class="r">${x.y}</td><td class="r">${x.act}</td><td class="r">${x.exp}</td><td class="r dn">${x.delta}</td><td class="r">${x.f}</td></tr>`).join('')+'</tbody>';
+}
+function buildExpected(){
+  const sorted=MANAGERS.slice().sort((a,b)=>CAREER[b].expT-CAREER[a].expT);
+  new Chart(document.getElementById('cExpTitles'),{type:'bar',data:{labels:sorted,datasets:[{label:'Expected',data:sorted.map(m=>CAREER[m].expT),backgroundColor:'rgba(55,138,221,0.25)',borderColor:'#378ADD',borderWidth:1.5,borderRadius:3},{label:'Actual',data:sorted.map(m=>CAREER[m].titles),backgroundColor:sorted.map(m=>COLORS[m]+'cc'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  const insights=[{m:'Kyle',e:2.04,a:0,t:'2.04 expected, zero actual — highest career PPG, zero rings. The league\'s biggest underachiever.',cl:'r'},{m:'Matthew',e:1.03,a:3,t:'3 actual vs 1.03 expected — the most clutch winner. Titles when it matters.',cl:'g'},{m:'Dalton',e:0.76,a:2,t:'2 titles on 0.76 expected. Massive overperformer — schedule luck AND Pythagorean both back him up.',cl:'g'},{m:'Carson',e:0.43,a:1,t:'The biggest single-title overperform. Won despite a chronically below-average scoring profile.',cl:'g'},{m:'Cobi',e:1.34,a:1,t:'1.34 expected, 1 actual. Had elite individual seasons (164.9 PPG in 2018) that didn\'t convert.',cl:'a'},{m:'Brendan',e:0.90,a:0,t:'Nearly a full expected title, never made a finals. Consistent mid-table.',cl:'r'},{m:'Blaise',e:1.18,a:1,t:'1.18 expected, 1 actual — roughly even. Huge scoring seasons (167.7 in 2016) but only 2 finals apps.',cl:'a'}];
+  document.getElementById('expInsights').innerHTML=insights.map(x=>`<div class="ibox ${x.cl}"><strong>${x.m}</strong> — exp: ${x.e.toFixed(2)}, actual: ${x.a} — ${x.t}</div>`).join('');
+}
+function buildH2H(){
+  let html=`<tr><th></th>${MANAGERS.map(m=>`<th>${m.slice(0,4)}</th>`).join('')}</tr>`;
+  MANAGERS.forEach(a=>{
+    html+=`<tr><th style="text-align:left;padding:3px 5px;font-size:10px;color:var(--text)">${a}</th>`;
+    MANAGERS.forEach(b=>{
+      if(a===b){html+=`<td class="h2h-self">—</td>`;return;}
+      const r=H2H[a]&&H2H[a][b];
+      if(!r){html+=`<td>—</td>`;return;}
+      html+=`<td class="${r[0]>r[1]?'h2h-win':r[0]<r[1]?'h2h-loss':''}">${r[0]}-${r[1]}</td>`;
+    });
+    html+='</tr>';
+  });
+  document.getElementById('h2hTbl').innerHTML=html;
+}
+function buildProfileSelect(){
+  const s=document.getElementById('profileSel');
+  MANAGERS.forEach(m=>{const o=document.createElement('option');o.value=o.textContent=m;s.appendChild(o);});
+}
+function renderProfile(){
+  const m=document.getElementById('profileSel').value;
+  const c=CAREER[m];
+  const seasons=SEASON.filter(r=>r.n===m).sort((a,b)=>a.y-b.y);
+  const col=COLORS[m];
+  document.getElementById('profileArea').innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1rem">
+    <div class="metric"><div class="lbl">Seasons</div><div class="val">${c.seasons}</div></div>
+    <div class="metric"><div class="lbl">W-L</div><div class="val">${c.w}-${c.l}</div><div class="sub">${(c.w/(c.w+c.l)*100).toFixed(1)}%</div></div>
+    <div class="metric"><div class="lbl">Avg PPG</div><div class="val">${c.ppg.toFixed(1)}</div></div>
+    <div class="metric"><div class="lbl">Avg PPGA</div><div class="val">${c.ppga.toFixed(1)}</div></div>
+    <div class="metric"><div class="lbl">Titles</div><div class="val">${c.titles}</div></div>
+    <div class="metric"><div class="lbl">Finals</div><div class="val">${c.finals}</div></div>
+    <div class="metric"><div class="lbl">Pyth Δ</div><div class="val ${cls(c.pyth)}">${sgn(c.pyth)}</div></div>
+    <div class="metric"><div class="lbl">Luck Δ</div><div class="val ${cls(c.luck)}">${sgn(c.luck)}</div></div>
+  </div>
+  <div class="two">
+    <div class="card"><h3>PPG by season</h3><div class="card-src">${Math.min(...seasons.map(r=>r.y))}–${Math.max(...seasons.map(r=>r.y))}</div><div style="position:relative;height:180px"><canvas id="prPPG"></canvas></div></div>
+    <div class="card"><h3>Finish by season</h3><div class="card-src">Lower = better</div><div style="position:relative;height:180px"><canvas id="prFin"></canvas></div></div>
+  </div>
+  <div class="card"><h3>Season-by-season log</h3><table class="tbl"><thead><tr><th>Year</th><th class="r">PPG</th><th class="r">Win%</th><th class="r">Finish</th><th class="r">vs Lg avg</th><th class="r">PPGA</th></tr></thead><tbody>${seasons.map(r=>{const d=(r.ppg-(LG_AVG[r.y]||130)).toFixed(1);return`<tr><td>${r.y}</td><td class="r">${r.ppg.toFixed(1)}</td><td class="r">${(r.w/(r.w+r.l)*100).toFixed(0)}%</td><td class="r">${r.f}</td><td class="r ${d>0?'up':'dn'}">${d>0?'+':''}${d}</td><td class="r">${r.ppga.toFixed(1)}</td></tr>`;}).join('')}</tbody></table></div>`;
+  new Chart(document.getElementById('prPPG'),{type:'line',data:{labels:seasons.map(r=>r.y),datasets:[{data:seasons.map(r=>r.ppg),borderColor:col,backgroundColor:col+'22',tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:col},{data:seasons.map(r=>LG_AVG[r.y]||0).filter(v=>v>0),borderColor:'#555',borderDash:[4,4],tension:0.3,pointRadius:2,label:'Lg avg'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  new Chart(document.getElementById('prFin'),{type:'line',data:{labels:seasons.map(r=>r.y),datasets:[{data:seasons.map(r=>r.f),borderColor:'#E24B4A',tension:0.2,pointRadius:4,pointBackgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{reverse:true,min:1,ticks:{stepSize:1}}}}});
+}
+
+// ===================== SCORING =====================
+function buildThrSelects(){
+  const s=document.getElementById('thrSel');
+  MANAGERS.forEach(m=>{const o=document.createElement('option');o.value=o.textContent=m;s.appendChild(o);});
+}
+function renderThresholds(){
+  const m=document.getElementById('thrSel').value;
+  const d=THRESH[m],b=BOOMBUST[m];
+  const pct=n=>(n/d.g*100).toFixed(1)+'%';
+  const bars=[[200,d.t200,'#7F77DD'],[180,d.t180,'#534AB7'],[170,d.t170,'#378ADD'],[160,d.t160,'#1D9E75'],[150,d.t150,'#639922'],[140,d.t140,'#EF9F27'],[130,d.t130,'#BA7517'],[120,d.t120,'#D4537E'],[110,d.t110,'#888780'],[100,d.t100,'#5DCAA5']];
+  const busts=[[70,d.s70,'#791F1F'],[80,d.s80,'#A32D2D'],[90,d.s90,'#D85A30'],[100,d.s100,'#EF9F27']];
+  document.getElementById('thrArea').innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1rem">
+    <div class="metric"><div class="lbl">Games</div><div class="val">${d.g}</div><div class="sub">2019–2025 RS</div></div>
+    <div class="metric"><div class="lbl">Avg PPG</div><div class="val">${b.avg.toFixed(1)}</div></div>
+    <div class="metric"><div class="lbl">Std dev</div><div class="val">${b.sd.toFixed(1)}</div></div>
+    <div class="metric"><div class="lbl">CV%</div><div class="val">${b.cv.toFixed(1)}%</div><div class="sub">consistency</div></div>
+    <div class="metric"><div class="lbl">Boom (150+)</div><div class="val up">${(b.boom/d.g*100).toFixed(0)}%</div><div class="sub">${b.boom} games</div></div>
+    <div class="metric"><div class="lbl">Bust (sub-100)</div><div class="val dn">${(b.bust/d.g*100).toFixed(0)}%</div><div class="sub">${b.bust} games</div></div>
+  </div>
+  <div class="two">
+    <div class="card"><h3>Scoring above threshold — ${m}</h3><div class="card-src">2019–2025 RS</div>
+      ${bars.map(([t,n,c])=>`<div class="bar-row"><span style="width:55px;color:var(--text2);font-size:10px">${t}+</span><div class="bar-bg"><div class="bar-fill" style="width:${n/d.g*100}%;background:${c}"></div></div><span style="width:25px;text-align:right">${n}</span><span style="width:40px;text-align:right;color:var(--text2)">${pct(n)}</span></div>`).join('')}
+    </div>
+    <div class="card"><h3>Bust thresholds — ${m}</h3><div class="card-src">2019–2025 RS · games below each level</div>
+      ${busts.map(([t,n,c])=>`<div class="bar-row"><span style="width:55px;color:var(--text2);font-size:10px">Sub-${t}</span><div class="bar-bg"><div class="bar-fill" style="width:${n/d.g*100*5}%;background:${c}"></div></div><span style="width:25px;text-align:right">${n}</span><span style="width:40px;text-align:right;color:var(--text2)">${pct(n)}</span></div>`).join('')}
+      <div style="margin-top:1rem;font-size:11px;color:var(--text2)">Heartbreak losses (150+ pts, L): <strong style="color:var(--text)">${b.hsl}</strong> &nbsp;·&nbsp; Heist wins (sub-110, W): <strong style="color:var(--text)">${b.lsw}</strong></div>
+    </div>
+  </div>`;
+}
+function buildBoomBust(){
+  const sorted=MANAGERS.slice().sort((a,b)=>BOOMBUST[b].boom/THRESH[b].g-BOOMBUST[a].boom/THRESH[a].g);
+  new Chart(document.getElementById('cBoomBust'),{type:'bar',data:{labels:sorted,datasets:[{label:'Boom%',data:sorted.map(m=>+(BOOMBUST[m].boom/THRESH[m].g*100).toFixed(1)),backgroundColor:sorted.map(m=>COLORS[m]+'cc'),borderRadius:3},{label:'Bust%',data:sorted.map(m=>-(BOOMBUST[m].bust/THRESH[m].g*100).toFixed(1)),backgroundColor:sorted.map(m=>COLORS[m]+'55'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>Math.abs(v).toFixed(0)+'%'}}}}});
+  document.getElementById('bbTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Games</th><th class="r">Avg</th><th class="r">SD</th><th class="r">CV%</th><th class="r">Boom(150+)</th><th class="r">Boom%</th><th class="r">Bust(sub-100)</th><th class="r">Bust%</th><th class="r">Elite(170+)</th><th class="r">Disaster(sub-80)</th></tr></thead><tbody>`+MANAGERS.map(m=>`<tr><td>${m}</td><td class="r">${THRESH[m].g}</td><td class="r">${BOOMBUST[m].avg.toFixed(1)}</td><td class="r">${BOOMBUST[m].sd.toFixed(1)}</td><td class="r">${BOOMBUST[m].cv.toFixed(1)}%</td><td class="r"><span class="pill pill-g">${BOOMBUST[m].boom}</span></td><td class="r up">${(BOOMBUST[m].boom/THRESH[m].g*100).toFixed(1)}%</td><td class="r"><span class="pill pill-r">${BOOMBUST[m].bust}</span></td><td class="r dn">${(BOOMBUST[m].bust/THRESH[m].g*100).toFixed(1)}%</td><td class="r">${BOOMBUST[m].elite}</td><td class="r">${BOOMBUST[m].disaster}</td></tr>`).join('')+'</tbody>';
+}
+function buildStreaks(){
+  const sorted=MANAGERS.slice().sort((a,b)=>STREAKS[b].maxW-STREAKS[a].maxW);
+  new Chart(document.getElementById('cStreaks'),{type:'bar',data:{labels:sorted,datasets:[{label:'Max W streak',data:sorted.map(m=>STREAKS[m].maxW),backgroundColor:sorted.map(m=>COLORS[m]+'cc'),borderRadius:3},{label:'Max L streak',data:sorted.map(m=>-STREAKS[m].maxL),backgroundColor:sorted.map(m=>COLORS[m]+'44'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>Math.abs(v)}}}}});
+  document.getElementById('s130Tbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Longest 130+ streak</th></tr></thead><tbody>`+MANAGERS.slice().sort((a,b)=>STREAKS[b].max130-STREAKS[a].max130).map(m=>`<tr><td>${m}</td><td class="r up">${STREAKS[m].max130} games</td></tr>`).join('')+'</tbody>';
+  document.getElementById('best5Tbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Best 5-game avg</th></tr></thead><tbody>`+MANAGERS.slice().sort((a,b)=>STREAKS[b].best5-STREAKS[a].best5).map(m=>`<tr><td>${m}</td><td class="r up">${STREAKS[m].best5.toFixed(1)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('best10Tbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Best 10-game span</th></tr></thead><tbody>`+MANAGERS.slice().sort((a,b)=>STREAKS[b].best10-STREAKS[a].best10).map(m=>`<tr><td>${m}</td><td class="r up">${STREAKS[m].best10}/10</td></tr>`).join('')+'</tbody>';
+  document.getElementById('worst10Tbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Worst 10-game span</th></tr></thead><tbody>`+MANAGERS.slice().sort((a,b)=>STREAKS[a].worst10-STREAKS[b].worst10).map(m=>`<tr><td>${m}</td><td class="r dn">${STREAKS[m].worst10}/10</td></tr>`).join('')+'</tbody>';
+}
+function buildSplits(){
+  const diffs=MANAGERS.map(m=>+(SPLITS[m].h2_avg-SPLITS[m].h1_avg).toFixed(1));
+  new Chart(document.getElementById('cHalves'),{type:'bar',data:{labels:MANAGERS,datasets:[{data:diffs,backgroundColor:MANAGERS.map((m,i)=>diffs[i]>=0?COLORS[m]+'cc':COLORS[m]+'66'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>(v>=0?'+':'')+v.toFixed(1)}}}}});
+  document.getElementById('splitTbl').innerHTML=`<thead><tr><th>Manager</th><th class="r">Early avg</th><th class="r">Early W%</th><th class="r">Mid avg</th><th class="r">Mid W%</th><th class="r">Late avg</th><th class="r">Late W%</th><th class="r">1H avg</th><th class="r">2H avg</th><th class="r">2H-1H Δ</th></tr></thead><tbody>`+MANAGERS.map(m=>{const s=SPLITS[m];const d=(s.h2_avg-s.h1_avg);return`<tr><td><strong>${m}</strong></td><td class="r">${s.e_avg.toFixed(1)}</td><td class="r">${s.e_w}%</td><td class="r">${s.m_avg.toFixed(1)}</td><td class="r">${s.m_w}%</td><td class="r">${s.l_avg.toFixed(1)}</td><td class="r">${s.l_w}%</td><td class="r">${s.h1_avg.toFixed(1)}</td><td class="r">${s.h2_avg.toFixed(1)}</td><td class="r ${d>=0?'up':'dn'}">${d>=0?'+':''}${d.toFixed(1)}</td></tr>`;}).join('')+'</tbody>';
+}
+function buildMargins(){
+  document.getElementById('top15Tbl').innerHTML=`<thead><tr><th>#</th><th>Manager</th><th class="r">Year</th><th class="r">Wk</th><th class="r">Score</th><th>Opponent</th><th class="r">Result</th></tr></thead><tbody>`+TOP15.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.n}</strong></td><td class="r">${r.y}</td><td class="r">${r.wk}</td><td class="r up">${r.pts.toFixed(2)}</td><td>${r.opp}</td><td class="r"><span class="pill pill-g">W</span></td></tr>`).join('')+'</tbody>';
+  document.getElementById('bot15Tbl').innerHTML=`<thead><tr><th>#</th><th>Manager</th><th class="r">Year</th><th class="r">Wk</th><th class="r">Score</th><th>Opponent</th><th class="r">Result</th></tr></thead><tbody>`+BOT15.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.n}</strong></td><td class="r">${r.y}</td><td class="r">${r.wk}</td><td class="r dn">${r.pts.toFixed(2)}</td><td>${r.opp}</td><td class="r"><span class="pill ${r.r==='W'?'pill-g':'pill-r'}">${r.r}</span></td></tr>`).join('')+'</tbody>';
+}
+function buildLeagueWeekly(){
+  const lgYears=Object.keys(LG_AVG);
+  new Chart(document.getElementById('cLgYear'),{type:'bar',data:{labels:lgYears,datasets:[{data:Object.values(LG_AVG),backgroundColor:lgYears.map((_,i)=>['#378ADD','#1D9E75','#D85A30','#534AB7','#EF9F27','#D4537E','#639922'][i%7]+'cc'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:115}}}});
+  document.getElementById('topWkTbl').innerHTML=`<thead><tr><th>Season</th><th class="r">Week</th><th class="r">Lg avg</th><th class="r">Min</th><th class="r">Max</th><th class="r">Teams</th></tr></thead><tbody>`+TOP_WEEKS.map(w=>`<tr><td>${w.y}</td><td class="r">${w.w}</td><td class="r up">${w.avg.toFixed(1)}</td><td class="r">${w.min.toFixed(1)}</td><td class="r">${w.max.toFixed(1)}</td><td class="r">${w.n}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('botWkTbl').innerHTML=`<thead><tr><th>Season</th><th class="r">Week</th><th class="r">Lg avg</th><th class="r">Min</th><th class="r">Max</th><th class="r">Teams</th></tr></thead><tbody>`+BOT_WEEKS.map(w=>`<tr><td>${w.y}</td><td class="r">${w.w}</td><td class="r dn">${w.avg.toFixed(1)}</td><td class="r">${w.min.toFixed(1)}</td><td class="r">${w.max.toFixed(1)}</td><td class="r">${w.n}</td></tr>`).join('')+'</tbody>';
+}
+
+// ===================== TRADES =====================
+let filteredTrades=TRADES;
+function filterTrades(){
+  const q=document.getElementById('tradeSearch').value.toLowerCase();
+  const yr=document.getElementById('yearFilter').value;
+  const st=document.getElementById('statusFilter').value;
+  filteredTrades=TRADES.filter(t=>{
+    if(yr && t.y!=yr) return false;
+    if(st && t.s!==st) return false;
+    if(q && !`${t.sideA} ${t.sideAsent} ${t.sideB} ${t.sideBsent} ${t.y}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  renderTradeList();
+}
+function renderTradeList(){
+  document.getElementById('tradeCount').textContent=`Showing ${filteredTrades.length} of ${TRADES.length} trades (2019–2025 detailed; 2015–2018 in summary)`;
+  document.getElementById('tradeList').innerHTML=filteredTrades.map(t=>`
+  <div class="trade-row" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+    <span class="trade-num">#${t.id}</span>
+    <span class="trade-year" style="min-width:32px">${t.y}</span>
+    <span class="trade-date">${t.date}</span>
+    <span class="trade-status ${t.s==='Completed'?'ts-c':'ts-v'}">${t.s}</span>
+    <span style="flex:1;min-width:200px"><span class="team-name">${t.sideA}</span> <span class="players">sent ${t.sideAsent}</span> <span class="arrow">⇄</span> <span class="team-name">${t.sideB}</span> <span class="players">sent ${t.sideBsent}</span></span>
+  </div>`).join('');
+}
+function buildTradeTeams(){
+  const top10=TOP_TEAMS.slice(0,15);
+  new Chart(document.getElementById('cTradeTeams'),{type:'bar',data:{labels:top10.map(t=>t.t.length>18?t.t.slice(0,18)+'…':t.t),datasets:[{label:'Completed',data:top10.map(t=>t.c),backgroundColor:'#378ADD99',borderRadius:3},{label:'Vetoed',data:top10.map(t=>t.v),backgroundColor:'#E24B4A88',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,beginAtZero:true}}}});
+  document.getElementById('teamTbl').innerHTML=`<thead><tr><th>Team</th><th class="r">Trades</th><th class="r">Comp</th><th class="r">Vetoed</th><th class="r">Sent</th><th class="r">Received</th></tr></thead><tbody>`+TOP_TEAMS.map(t=>`<tr><td>${t.t}</td><td class="r"><strong>${t.tot}</strong></td><td class="r">${t.c}</td><td class="r">${t.v>0?`<span class="pill pill-r">${t.v}</span>`:0}</td><td class="r">${t.s}</td><td class="r">${t.r}</td></tr>`).join('')+'</tbody>';
+}
+function buildTopPlayers(){
+  const top15=TOP_PLAYERS.slice(0,15);
+  const posColor={RB:'#1D9E75',WR:'#378ADD',TE:'#EF9F27',QB:'#D4537E'};
+  new Chart(document.getElementById('cTopPlayers'),{type:'bar',data:{labels:top15.map(p=>p.p),datasets:[{data:top15.map(p=>p.n),backgroundColor:top15.map(p=>(posColor[p.pos]||'#888')+'cc'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxRotation:45,font:{size:10}}},y:{beginAtZero:true,ticks:{stepSize:2}}}}});
+  document.getElementById('topPlayersTbl').innerHTML=`<thead><tr><th>#</th><th>Player</th><th class="r">Position</th><th class="r">Times traded</th></tr></thead><tbody>`+TOP_PLAYERS.map((p,i)=>`<tr><td>${i+1}</td><td><strong>${p.p}</strong></td><td class="r"><span class="pill" style="background:${posColor[p.pos]||'#888'}33;color:${posColor[p.pos]||'#888'}">${p.pos}</span></td><td class="r">${p.n}</td></tr>`).join('')+'</tbody>';
+}
+function buildByYear(){
+  new Chart(document.getElementById('cByYear'),{type:'bar',data:{labels:BY_YEAR.map(x=>x.y),datasets:[{label:'Completed',data:BY_YEAR.map(x=>x.comp),backgroundColor:'#378ADD99',borderRadius:3},{label:'Vetoed',data:BY_YEAR.map(x=>x.vet),backgroundColor:'#E24B4A88',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+  document.getElementById('byYearTbl').innerHTML=`<thead><tr><th>Season</th><th class="r">Total</th><th class="r">Completed</th><th class="r">Vetoed</th><th class="r">Players moved</th></tr></thead><tbody>`+BY_YEAR.map(x=>`<tr><td>${x.y}</td><td class="r"><strong>${x.tot}</strong></td><td class="r">${x.comp}</td><td class="r">${x.vet>0?`<span class="pill pill-r">${x.vet}</span>`:0}</td><td class="r">${x.moved}</td></tr>`).join('')+'</tbody>';
+}
+function buildByPosition(){
+  const posData=[{pos:'WR',n:270,col:'#378ADD'},{pos:'RB',n:249,col:'#1D9E75'},{pos:'TE',n:73,col:'#EF9F27'},{pos:'QB',n:56,col:'#D4537E'},{pos:'DEF',n:3,col:'#888'},{pos:'K',n:1,col:'#555'}];
+  new Chart(document.getElementById('cByPos'),{type:'doughnut',data:{labels:posData.map(p=>p.pos),datasets:[{data:posData.map(p=>p.n),backgroundColor:posData.map(p=>p.col+'cc'),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#aaa',font:{size:11}}}}}});
+  const nflData=[['NO',50],['SF',46],['BUF',45],['BAL',35],['WAS',34],['SEA',27],['TB',27],['LV',26],['NYG',25],['PIT',24],['NYJ',23],['NE',22],['PHI',22],['LAC',21],['ATL',20]];
+  new Chart(document.getElementById('cByNFL'),{type:'bar',data:{labels:nflData.map(x=>x[0]),datasets:[{data:nflData.map(x=>x[1]),backgroundColor:'#7F77DDcc',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+
+// ===================== INIT =====================
+buildStandings();
+buildLuck();
+buildExpected();
+buildH2H();
+buildProfileSelect();
+renderProfile();
+buildThrSelects();
+renderThresholds();
+buildBoomBust();
+buildStreaks();
+buildSplits();
+buildMargins();
+buildLeagueWeekly();
+renderTradeList();
+buildTradeTeams();
+buildTopPlayers();
+buildByYear();
+buildByPosition();
+</script>
+</body>
+</html>
